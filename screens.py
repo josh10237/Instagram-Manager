@@ -6,18 +6,18 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 
 SCREEN_MANAGER = ScreenManager()
-#test
 
 class instagramManager(App):
     def build(self):
-        SCREEN_MANAGER.current = 'main'
+
+        SCREEN_MANAGER.current = 'remember'
         return SCREEN_MANAGER
 
 
 Window.clearcolor = (1, 1, 1, 1)
 
 
-class MainScreen(Screen):
+class RememberScreen(Screen):
     global counter
     counter = 0
 
@@ -27,8 +27,5 @@ class MainScreen(Screen):
         self.ids.info_button.text = "Count: " + str(counter)
 
 
-Builder.load_file('screens/main.kv')
-SCREEN_MANAGER.add_widget(MainScreen(name='main'))
-
-if __name__ == "__main__":
-    instagramManager().run()
+Builder.load_file('screens/login.kv')
+SCREEN_MANAGER.add_widget(RememberScreen(name='remember'))
