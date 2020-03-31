@@ -1,0 +1,24 @@
+discover_chaining(user_id)
+current_user() gets all profile info
+direct_v2_inbox() gets dm info
+feed_timeline() gets feed data
+friendships_create(user_id) follow a user
+friendships_destroy(user_id, **kwargs) unfollow a user
+friendships_pending() gets pending follow requests
+friendships_show_many(user_ids) shows following, and is_private data for multiple users at once
+ignore_user(user_id) ignore a users follow request
+login() and logout()
+media_info(media_id) gets media info
+feed_liked(**kwargs) gets liked posts
+media_likers(media_id, **kwargs) get people who liked photo
+media_permalink(media_id) gets instagram media link
+search_users('query') searches a username
+set_account_public() and set_account_private()
+user_followers(user_id, rank_token, **kwargs) gets a users followers
+user_following(user_id, rank_token, **kwargs) gets a users following
+user_map(user_id) gets geotagged info from a user
+username_feed(user_name, **kwargs) gets feed posts from a specific user
+username_info(user_name) gets info on a specific user
+
+test acc_id: 243946204, 5565476890
+test media_id: 2273125904620085213_5565476890, 2273125902925488987_5565476890

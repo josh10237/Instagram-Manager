@@ -1,0 +1,33 @@
+
+<MainScreen>:
+    name: 'main'
+    FloatLayout:
+        size_hint: None, None
+
+
+        Image:
+            source: "babyyoda.jpeg"
+            x: (root.width * .5)-100
+            y: root.height * .75
+            size_hint_x: 2
+            allow_stretch: True
+
+        Label:
+            text: "Example text"
+            id: info_error
+            color: (.13, .8, .6, 1)
+            x: (root.width * .5)-50
+            y: root.height * 0.5
+            bold: True
+
+        Button:
+            id: info_button
+            text: "Counter"
+            x: (root.width * .5)-150
+            y: root.height * 0.3
+            size: 300, 70
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_color: 3, 1, 1, 1
+            on_press: root.method(1)
