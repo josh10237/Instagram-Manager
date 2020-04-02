@@ -51,10 +51,58 @@
     FloatLayout:
         size_hint: None, None
 
-        Image:
-            source: "images/blankprofile.png"
-            x: (root.width * .5)-170
-            y: root.height * .38
-            size_hint_x: 3.4
-            size_hint_y: 3.4
-            allow_stretch: True
+        TextInput:
+            id: username
+            multiline:False
+            width: 300
+            size_hint: (None, None)
+            height: 30
+            x: (root.width * .5) - 150
+            y: (root.height * 0.6)
+            background_color: 1, 1, 1, .3
+            hint_text_color: 0, 0, 0, .3
+            hint_text: "username"
+            foreground_color: 0, 0, 0, .8
+
+        TextInput:
+            id: password
+            multiline:False
+            width: 300
+            size_hint: (None, None)
+            height: 30
+            x: (root.width * .5) - 150
+            y: (root.height * 0.5)
+            background_color: 1, 1, 1, .3
+            hint_text_color: 0, 0, 0, .3
+            hint_text: "password"
+            foreground_color: 0, 0, 0, .8
+            password: True
+
+        Button:
+            id: logIn
+            text: "Log In"
+            x: (root.width * .5)-150
+            y: root.height * 0.25
+            size: 300, 70
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_color: 3, 1, 1, 1
+            on_press: root.logIn()
+
+        Label:
+            text: ""
+            id: error_info
+            font_size: 12
+            halign: 'center'
+            color: (.8, 0, 0, .6)
+            x: (root.width * .5) - 50
+            y: (root.height * 0.5) - 65
+
+        Label:
+            text: "Copyright 2020. All rights reserved. Created by Josh Benson. \n Reuse of any intellectual property violates US law Republic Act No. 8293. Any and all violations will be persecuted"
+            font_size: 10
+            halign: 'center'
+            color: (0, 0, 0, .5)
+            x: (root.width * .5) - 50
+            y: 0

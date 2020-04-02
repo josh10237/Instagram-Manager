@@ -1,5 +1,6 @@
 from kivy.app import App
 import helpers as h
+import cache as c
 from kivy.core.window import Window, Animation
 from kivy.graphics.context_instructions import Color
 from kivy.properties import NumericProperty, ColorProperty
@@ -14,14 +15,19 @@ SCREEN_MANAGER = ScreenManager()
 
 class instagramManagerApp(App):
     def build(self):
-        SCREEN_MANAGER.current = 'remember'
+        username = ''
+        password = ''
+        try:
+            username = c.cache['username']
+            password = c.cache['password']
+        except:
+            pass
+        if len(username) > 1 and len(password) > 1:
+            SCREEN_MANAGER.current = 'remember'
+        else:
+            SCREEN_MANAGER.current = 'newUser'
         return SCREEN_MANAGER
 
-
-authorization_blue = ColorProperty(r=55, g=151, b=240)
-authorization_blue_pressed = ColorProperty(r=35, g=110, b=190)
-insta_orange = ColorProperty(r=249, g=157, b=82)
-insta_pink = ColorProperty(r=213, g=111, b=178)
 Window.clearcolor = (1, 1, 1, 1)
 Window.size = (800, 550)
 
@@ -38,7 +44,16 @@ class RememberScreen(Screen):
 
 
 class NewUserScreen(Screen):
-    pass
+    def logIn(self):
+        username = self.ids.username.text
+        password = self.ids.password.text
+        if len(username) < 2 or len(password) < 2:
+            self.ids.error_info.text = 'Please enter a valid log in'
+        elif h.logInAPI(username, password) == 'error':
+            self.ids.error_info.text = 'Invalid Log In'
+        c.cache_log_in(username, password)
+
+
 
 
 class DashboardScreen(Screen):

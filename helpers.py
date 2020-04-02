@@ -1,10 +1,5 @@
-from instagram_private_api import Client, ClientCompatPatch
 from random import randint
 from time import sleep
-
-user_name = 'testaccforapi'
-password = 'MADdog23'
-#api = Client(user_name, password, auto_patch=True)
 
 def getFollowing():
     return randint(600, 3000)
@@ -14,7 +9,6 @@ def getDFMB():
     return randint(0, 800)
 def getAverageLikes():
     return randint(600, 1500)
-
 
 def is_following_back(username):
     rank_token = api.generate_uuid(return_hex=False, seed=None)
