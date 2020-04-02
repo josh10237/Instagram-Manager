@@ -1,0 +1,187 @@
+<DashboardScreen>:
+    name: 'dashboard'
+    FloatLayout:
+        size_hint: None, None
+
+        Image:
+            source: "images/blankprofile.png"
+            x: (root.width * .5)-100
+            y: root.height * .7 - 50
+            size_hint_x: 2
+            size_hint_y: 2
+            allow_stretch: True
+
+        Label:
+            text: "@Joshbenson_"
+            color: (0, 0, 0, .8)
+            x: (root.width * .5)-50
+            y: root.height * 0.7 - 80
+
+        Label:
+            text: "Following"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .2)-50
+            y: root.height * 0.77
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "1772"
+                id: following
+                color: (0, 0, 0, 1)
+                x: (root.width * .2)-50
+                y: root.height * 0.7
+                font_size: 25
+                bold: True
+
+        Label:
+            text: "Followers"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .2)-50
+            y: root.height * 0.57
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "3002"
+                id: followers
+                color: (0, 0, 0, 1)
+                x: (root.width * .2)-50
+                y: root.height * 0.5
+                font_size: 25
+                bold: True
+
+        Label:
+            text: "Ratio"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .2)-50
+            y: root.height * 0.37
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "1.9"
+                id: ratio
+                color: (0, 0, 0, 1)
+                x: (root.width * .2)-50
+                y: root.height * 0.3
+                font_size: 25
+                bold: True
+
+        Label:
+            text: "DFMB"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .8)-50
+            y: root.height * 0.77
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "332"
+                id: dfmb
+                color: (0, 0, 0, 1)
+                x: (root.width * .8)-50
+                y: root.height * 0.7
+                font_size: 25
+                bold: True
+
+        Label:
+            text: "Avg Likes"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .8)-50
+            y: root.height * 0.57
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "890"
+                id: avg_likes
+                color: (0, 0, 0, 1)
+                x: (root.width * .8)-50
+                y: root.height * 0.5
+                font_size: 25
+                bold: True
+
+        Label:
+            text: "Engagement"
+            color: (.22, .59, .94, 1)
+            x: (root.width * .8)-50
+            y: root.height * 0.37
+            font_size: 30
+            bold: True
+
+            Label:
+                text: "11%"
+                id: engagement
+                color: (0, 0, 0, 1)
+                x: (root.width * .8)-50
+                y: root.height * 0.3
+                font_size: 25
+                bold: True
+
+        RelativeLayout:
+            canvas:
+                Color:
+                    rgb: .3, .9, .5
+                Ellipse:
+                    pos: root.width * .5-50, root.height * 0.37 - 20
+                    size: self.size
+
+        Label:
+            text: "A+"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-50
+            y: root.height * 0.37 - 20
+            font_size: 50
+            bold: True
+
+        Button:
+            id: crawl_button
+            text: "Start Crawl"
+            x: (root.width * .5)-250
+            y: root.height * 0.1
+            size: 200, 40
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_normal: 'images/buttonbackgrounds/crawl_up.png'
+            background_down: 'images/buttonbackgrounds/crawl_down.png'
+            border: 40,40,40,40
+            on_release:
+
+        Button:
+            id: purge_button
+            text: "Start Purge"
+            x: (root.width * .5) + 50
+            y: root.height * 0.1
+            size: 200, 40
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_normal: 'images/buttonbackgrounds/purge_up.png'
+            background_down: 'images/buttonbackgrounds/purge_down.png'
+            border: 40,40,40,40
+            on_release:
+
+        Button:
+            id: refresh
+            x: (root.width * .025)-25
+            y: root.height * 0.9 - 15
+            size: 200, 40
+            size_hint: .6, .6
+            color: 1, 1, 1, 1
+            background_normal: 'images/buttonbackgrounds/refresh.png'
+            background_down: 'images/buttonbackgrounds/refresh_active.png'
+            on_release: root.refresh()
+
+        Button:
+            id: settings
+            x: (root.width * .95)-30
+            y: root.height * 0.9 - 20
+            size: 200, 40
+            size_hint: .8, .8
+            color: 1, 1, 1, 1
+            background_normal: 'images/buttonbackgrounds/settings.png'
+            background_down: 'images/buttonbackgrounds/settings_active.png'
+            on_release: root.settings()
+

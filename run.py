@@ -1,4 +1,4 @@
-from screens import instagramManager
+from screens import instagramManagerApp
 
 if __name__ == "__main__":
-    instagramManager().run()
+    instagramManagerApp().run()

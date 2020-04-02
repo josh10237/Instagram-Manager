@@ -1,32 +1,60 @@
 <RememberScreen>:
-    name: 'main'
+    name: 'remember'
     FloatLayout:
         size_hint: None, None
 
-
         Image:
-            source: "babyyoda.jpeg"
-            x: (root.width * .5)-100
-            y: root.height * .75
-            size_hint_x: 2
+            source: "images/blankprofile.png"
+            x: (root.width * .5)-170
+            y: root.height * .38
+            size_hint_x: 3.4
+            size_hint_y: 3.4
             allow_stretch: True
 
-        Label:
-            text: "Example text"
-            id: info_error
-            color: (.13, .8, .6, 1)
-            x: (root.width * .5)-50
-            y: root.height * 0.5
-            bold: True
-
         Button:
-            id: info_button
-            text: "Counter"
+            id: enter_button
+            text: "Continue as joshbenson_"
             x: (root.width * .5)-150
-            y: root.height * 0.3
+            y: root.height * 0.28
             size: 300, 70
             size_hint: None, None
             color: 1, 1, 1, 1
             bold: True
-            background_color: 3, 1, 1, 1
-            on_press: root.method(1)
+            background_normal: 'images/buttonbackgrounds/enter_up.png'
+            background_down: 'images/buttonbackgrounds/enter_down.png'
+            border: 30,30,30,30
+            on_release: root.continue_remember()
+
+        Button:
+            text: "Switch account"
+            id: switch_acc
+            color: (0, 0, 0, .5)
+            size: 300, 70
+            background_color: 0, 0, 0, 0
+            x: (root.width * .5)-50
+            y: root.height * 0.15 - 15
+            underline: True
+            on_press: root.switch_account('press')
+            on_release: root.switch_account('release')
+
+        Label:
+            text: "Copyright 2020. All rights reserved. Created by Josh Benson. \n Reuse of any intellectual property violates US law Republic Act No. 8293. Any and all violations will be persecuted"
+            font_size: 10
+            halign: 'center'
+            color: (0, 0, 0, .5)
+            x: (root.width * .5) - 50
+            y: 0
+
+
+<NewUserScreen>:
+    name: 'newUser'
+    FloatLayout:
+        size_hint: None, None
+
+        Image:
+            source: "images/blankprofile.png"
+            x: (root.width * .5)-170
+            y: root.height * .38
+            size_hint_x: 3.4
+            size_hint_y: 3.4
+            allow_stretch: True

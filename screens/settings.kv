@@ -1,0 +1,287 @@
+<SettingsScreen>:
+    name: 'settings'
+    FloatLayout:
+        size_hint: None, None
+
+        Label:
+            text: "Crawl Settings"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-50
+            y: root.height * 0.95 - 50
+            font_size: 25
+            bold: True
+
+        Label:
+            text: "Minimum mutual friends to follow"
+            color: (0, 0, 0, .6)
+            x: (root.width * .25)-100
+            y: root.height * 0.89 - 50
+            font_size: 15
+
+        Label:
+            text: " Ratio to follow\n(select multiple)"
+            color: (0, 0, 0, .6)
+            x: (root.width * .75)
+            y: root.height * 0.89 - 50
+            font_size: 15
+
+        Label:
+            text: "Control"
+            color: (0, 0, 0, .6)
+            x: (root.width * .5)-50
+            y: root.height * 0.89 - 50
+            font_size: 15
+
+        Button:
+            id: crawlmanual
+            x: (root.width * .46)-25
+            y: root.height * 0.78 - 20
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/manual.png'
+            background_down: 'images/settingbackgrounds/manual_select.png'
+            on_release: root.manual('crawl')
+
+        Button:
+            id: crawlautomatic
+            x: (root.width * .54)-25
+            y: root.height * 0.78 - 20
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/automatic.png'
+            background_down: 'images/settingbackgrounds/automatic_select.png'
+            on_release: root.automatic('crawl')
+
+        Button:
+            x: (root.width * .06)-25
+            y: root.height * 0.78 - 20
+            id: tenplus
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/10+.png'
+            background_down: 'images/settingbackgrounds/10+_select.png'
+            on_release: root.tenplus()
+
+        Button:
+            x: (root.width * .14)-25
+            y: root.height * 0.78 - 20
+            id: thirtyplus
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/30+.png'
+            background_down: 'images/settingbackgrounds/30+_select.png'
+            on_release: root.thirtyplus()
+
+        Button:
+            x: (root.width * .22)-25
+            y: root.height * 0.78 - 20
+            id: fiftyplus
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/50+.png'
+            background_down: 'images/settingbackgrounds/50+_select.png'
+            on_release: root.fiftyplus()
+
+        Button:
+            x: (root.width * .3)-25
+            y: root.height * 0.78 - 20
+            id: hundredplus
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/100+.png'
+            background_down: 'images/settingbackgrounds/100+_select.png'
+            on_release: root.hundredplus()
+
+        Button:
+            x: (root.width * .7)-25
+            y: root.height * 0.78 - 20
+            id: verylow
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/verylow.png'
+            background_down: 'images/settingbackgrounds/verylow_select.png'
+            on_release: root.verylow()
+
+        Button:
+            x: (root.width * .78)-25
+            y: root.height * 0.78 - 20
+            id: low
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/low.png'
+            background_down: 'images/settingbackgrounds/low_select.png'
+            on_release: root.low()
+
+        Button:
+            x: (root.width * .86)-25
+            y: root.height * 0.78 - 20
+            id: high
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/high.png'
+            background_down: 'images/settingbackgrounds/high_select.png'
+            on_release: root.high()
+
+        Button:
+            x: (root.width * .94)-25
+            y: root.height * 0.78 - 20
+            id: veryhigh
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/veryhigh.png'
+            background_down: 'images/settingbackgrounds/veryhigh_select.png'
+            on_release: root.veryhigh()
+
+        Label:
+            text: "Purge Settings"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-50
+            y: root.height * 0.65 - 50
+            font_size: 25
+            bold: True
+
+        Label:
+            text: " Whitelist length"
+            color: (0, 0, 0, .6)
+            x: (root.width * .7) - 50
+            y: root.height * 0.59 - 50
+            font_size: 15
+
+        Label:
+            text: "Control"
+            color: (0, 0, 0, .6)
+            x: (root.width * .34) - 40
+            y: root.height * 0.59 - 50
+            font_size: 15
+
+        Button:
+            x: (root.width * .3)-25
+            y: root.height * 0.48 - 15
+            id: purgemanual
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/manual.png'
+            background_down: 'images/settingbackgrounds/manual_select.png'
+            on_release: root.manual('purge')
+
+        Button:
+            x: (root.width * .38)-25
+            y: root.height * 0.48 - 15
+            id: purgeautomatic
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/automatic.png'
+            background_down: 'images/settingbackgrounds/automatic_select.png'
+            on_release: root.automatic('purge')
+
+        Button:
+            x: (root.width * .62)-25
+            y: root.height * 0.48 - 15
+            id: fivedays
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/5days.png'
+            background_down: 'images/settingbackgrounds/5days_select.png'
+            on_release: root.fivedays()
+
+        Button:
+            x: (root.width * .7)-25
+            y: root.height * 0.48 - 15
+            id: tendays
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/10days.png'
+            background_down: 'images/settingbackgrounds/10days_select.png'
+            on_release: root.tendays()
+
+        Button:
+            x: (root.width * .78)-25
+            y: root.height * 0.48 - 15
+            id: fifteendays
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/15days.png'
+            background_down: 'images/settingbackgrounds/15days_select.png'
+            on_release: root.fifteendays()
+
+        Label:
+            text: "Advanced Settings"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-50
+            y: root.height * 0.35 - 50
+            font_size: 25
+            bold: True
+
+        Label:
+            text: "Daily Limit"
+            color: (0, 0, 0, .6)
+            x: (root.width * .7) - 50
+            y: root.height * 0.28 - 50
+            font_size: 15
+
+        Label:
+            text: "Speed"
+            color: (0, 0, 0, .6)
+            x: (root.width * .34) - 45
+            y: root.height * 0.28 - 50
+            font_size: 15
+
+        Button:
+            x: (root.width * .26)-25
+            y: root.height * 0.18 - 20
+            id: slow
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/slow.png'
+            background_down: 'images/settingbackgrounds/slow_select.png'
+            on_release: root.slow()
+
+        Button:
+            x: (root.width * .34)-25
+            y: root.height * 0.18 - 20
+            id: med
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/med.png'
+            background_down: 'images/settingbackgrounds/med_select.png'
+            on_release: root.med()
+
+        Button:
+            x: (root.width * .42)-25
+            y: root.height * 0.18 - 20
+            id: fast
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/fast.png'
+            background_down: 'images/settingbackgrounds/fast_select.png'
+            on_release: root.fast()
+
+        Button:
+            x: (root.width * .62)-25
+            y: root.height * 0.18 - 20
+            id: hundred
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/100.png'
+            background_down: 'images/settingbackgrounds/100_select.png'
+            on_release: root.hundred()
+
+        Button:
+            x: (root.width * .7)-25
+            y: root.height * 0.18 - 20
+            id: hundredfifty
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/150.png'
+            background_down: 'images/settingbackgrounds/150_select.png'
+            on_release: root.hundredfifty()
+
+        Button:
+            x: (root.width * .78)-25
+            y: root.height * 0.18 - 20
+            id: twohundred
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/settingbackgrounds/200.png'
+            background_down: 'images/settingbackgrounds/200_select.png'
+            on_release: root.twohundred()
