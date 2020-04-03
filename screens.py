@@ -36,6 +36,7 @@ Window.size = (800, 550)
 class RememberScreen(Screen):
     def check_cache(self):
         self.ids.enter_button.text = "Continue as @" + c.retrieve_log_in('username')
+
     def continue_remember(self):
         SCREEN_MANAGER.current = 'dashboard'
 
@@ -52,10 +53,11 @@ class NewUserScreen(Screen):
         password = self.ids.password.text
         if len(username) < 2 or len(password) < 2:
             self.ids.error_info.text = 'Please enter a valid log in'
-        # elif h.logInAPI(username, password) == 'error':
-        #     self.ids.error_info.text = 'Invalid Log In'
-        c.cache_log_in(username, password)
-        SCREEN_MANAGER.current = 'dashboard'
+        elif h.new_API(username, password) == 'error':
+            self.ids.error_info.text = 'Invalid Log In'
+        else:
+            c.cache_log_in(username, password)
+            SCREEN_MANAGER.current = 'dashboard'
 
 
 class DashboardScreen(Screen):
@@ -65,6 +67,7 @@ class DashboardScreen(Screen):
 
     def refresh(self):
         self.ids.refresh.y = Window.height
+#        self.ids.profile_photo.source =
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         self.ids.followers.text = "-"
         self.ids.following.text = "-"
