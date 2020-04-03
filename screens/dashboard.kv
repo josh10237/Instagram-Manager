@@ -1,5 +1,6 @@
 <DashboardScreen>:
     name: 'dashboard'
+    on_enter: root.refresh()
     FloatLayout:
         size_hint: None, None
 
@@ -13,6 +14,7 @@
 
         Label:
             text: "@Joshbenson_"
+            id: user_label
             color: (0, 0, 0, .8)
             x: (root.width * .5)-50
             y: root.height * 0.7 - 80

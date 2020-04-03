@@ -17,8 +17,6 @@ except ImportError:
         ClientCookieExpiredError, ClientLoginRequiredError,
         __version__ as client_version)
 
-# def logInAPI(username, password):
-#     api = Client(username, password, auto_patch=True)
 
 def to_json(python_object):
     if isinstance(python_object, bytes):
@@ -26,16 +24,19 @@ def to_json(python_object):
                 '__value__': codecs.encode(python_object, 'base64').decode()}
     raise TypeError(repr(python_object) + ' is not JSON serializable')
 
+
 def from_json(json_object):
     if '__class__' in json_object and json_object['__class__'] == 'bytes':
         return codecs.decode(json_object['__value__'].encode(), 'base64')
     return json_object
+
 
 def onlogin_callback(api, new_settings_file):
     cache_settings = api.settings
     with open(new_settings_file, 'w') as outfile:
         json.dump(cache_settings, outfile, default=to_json)
         print('SAVED: {0!s}'.format(new_settings_file))
+
 
 if __name__ == '__main__':
 
@@ -46,9 +47,9 @@ if __name__ == '__main__':
     # Example command:
     # python examples/savesettings_logincallback.py -u "yyy" -p "zzz" -settings "test_credentials.json"
     parser = argparse.ArgumentParser(description='login callback and save settings demo')
-    parser.add_argument('-settings', '-settings', dest='settings_file_path', type=str, required=True)
-    parser.add_argument('-u', '-testaccforapi', dest='username', type=str, required=True)
-    parser.add_argument('-p', '-MADdog23', dest='password', type=str, required=True)
+    parser.add_argument('-settings', '--settings', dest='settings_file_path', type=str, required=True)
+    parser.add_argument('-u', '--username', dest='username', type=str, required=True)
+    parser.add_argument('-p', '--password', dest='password', type=str, required=True)
     parser.add_argument('-debug', '--debug', action='store_true')
 
     args = parser.parse_args()

@@ -28,11 +28,14 @@ class instagramManagerApp(App):
             SCREEN_MANAGER.current = 'newUser'
         return SCREEN_MANAGER
 
+
 Window.clearcolor = (1, 1, 1, 1)
 Window.size = (800, 550)
 
 
 class RememberScreen(Screen):
+    def check_cache(self):
+        self.ids.enter_button.text = "Continue as @" + c.retrieve_log_in('username')
     def continue_remember(self):
         SCREEN_MANAGER.current = 'dashboard'
 
@@ -49,19 +52,20 @@ class NewUserScreen(Screen):
         password = self.ids.password.text
         if len(username) < 2 or len(password) < 2:
             self.ids.error_info.text = 'Please enter a valid log in'
-        elif h.logInAPI(username, password) == 'error':
-            self.ids.error_info.text = 'Invalid Log In'
+        # elif h.logInAPI(username, password) == 'error':
+        #     self.ids.error_info.text = 'Invalid Log In'
         c.cache_log_in(username, password)
-
-
+        SCREEN_MANAGER.current = 'dashboard'
 
 
 class DashboardScreen(Screen):
+
     def settings(self):
         SCREEN_MANAGER.current = 'settings'
 
     def refresh(self):
         self.ids.refresh.y = Window.height
+        self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         self.ids.followers.text = "-"
         self.ids.following.text = "-"
         self.ids.ratio.text = "-"
@@ -107,7 +111,6 @@ class SettingsScreen(Screen):
         self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
         self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
         self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+_select.png'
-
 
     def manual(self, type):
         if type == 'crawl':

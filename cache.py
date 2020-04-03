@@ -11,3 +11,5 @@ def retrieve_log_in(type):
     else:
         return cache['password']
 
+def cache_auth_cookies():
+    pass

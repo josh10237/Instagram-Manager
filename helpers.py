@@ -1,6 +1,6 @@
 from random import randint
 from time import sleep
-
+#api = Client(username, password, auto_patch=True)
 def getFollowing():
     return randint(600, 3000)
 def getFollowers():
@@ -13,7 +13,7 @@ def getAverageLikes():
 def is_following_back(username):
     rank_token = api.generate_uuid(return_hex=False, seed=None)
     top_result = api.user_followers(api.username_info(username)['user']['pk'], rank_token)['users'][0]
-    if top_result == user_name:
+    if top_result == username:
         return True
     else:
         return False
