@@ -92,6 +92,10 @@ class DashboardScreen(Screen):
 
 
 class SettingsScreen(Screen):
+
+    def settings(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
     def tenplus(self):
         self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+_select.png'
         self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
