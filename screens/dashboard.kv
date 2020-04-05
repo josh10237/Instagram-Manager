@@ -186,5 +186,7 @@
             color: 1, 1, 1, 1
             background_normal: 'images/buttonbackgrounds/settings.png'
             background_down: 'images/buttonbackgrounds/settings_active.png'
-            on_release: root.settings()
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.settings()
 
