@@ -9,6 +9,7 @@ try:
         __version__ as client_version)
 except ImportError:
     import sys
+
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     from instagram_private_api import (
         Client, ClientError, ClientLoginError,
@@ -17,6 +18,7 @@ except ImportError:
 
 global api
 
+
 def new_API(username, password):
     global api
     try:
@@ -24,12 +26,19 @@ def new_API(username, password):
     except:
         return "error"
 
+
 def getFollowing(username):
     return api.username_info(username)['user']['following_count']
+
+
 def getFollowers(username):
     return api.username_info(username)['user']['follower_count']
+
+
 def getDFMB(username):
     return randint(0, 800)
+
+
 def getAverageLikes(username):
     count = 0
     media_arr = []
@@ -41,13 +50,15 @@ def getAverageLikes(username):
             break
     for media_id in media_arr:
         sum += int(len(api.media_likers(str(media_id))['users']))
-    return(sum / count)
+    return (sum / count)
+
 
 def is_following_back(user_id):
     if api.friendships_show(user_id)['followed_by']:
         return True
     else:
         return False
+
 
 def get_user_id(username):
     return api.username_info(username)['user']['pk']
