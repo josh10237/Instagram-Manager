@@ -75,11 +75,11 @@ class DashboardScreen(Screen):
         self.ids.dfmb.text = "-"
         self.ids.avg_likes.text = "-"
         self.ids.engagement.text = "-"
-        followers = h.getFollowers()
-        following = h.getFollowing()
+        followers = h.getFollowers(c.retrieve_log_in('username'))
+        following = h.getFollowing(c.retrieve_log_in('username'))
         ratio = followers / following
-        dfmb = h.getDFMB()
-        avglikes = h.getAverageLikes()
+        dfmb = h.getDFMB(c.retrieve_log_in('username'))
+        avglikes = h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.followers.text = str(followers)
         self.ids.following.text = str(following)
