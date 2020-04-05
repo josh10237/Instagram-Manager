@@ -48,6 +48,8 @@ def getAverageLikes(username):
         count += 1
         if count == 6:
             break
+    if media_arr == 0:
+        return "No Posts"
     for media_id in media_arr:
         sum += int(len(api.media_likers(str(media_id))['users']))
     return (sum / count)
