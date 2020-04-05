@@ -43,14 +43,11 @@ def getAverageLikes(username):
         sum += int(len(api.media_likers(str(media_id))['users']))
     return(sum / count)
 
-def is_following_back(username):
-    rank_token = api.generate_uuid(return_hex=False, seed=None)
-    top_result = api.user_followers(api.username_info(username)['user']['pk'], rank_token)['users'][0]
-    if top_result == username:
+def is_following_back(user_id):
+    if api.friendships_show(user_id)['followed_by']:
         return True
     else:
         return False
-
 
 def get_user_id(username):
     return api.username_info(username)['user']['pk']
@@ -78,3 +75,18 @@ def follow_arr(speed, follow_arr):
         api.friendships_create(follow_arr[0])
         follow_arr.pop(0)
         sleep(speed)
+
+
+def following_ids(user_id):
+    maxid = 0
+    arr = []
+    rank_token = api.generate_uuid(return_hex=False, seed=None)
+    while True:
+        for x in range(99):
+            try:
+                id = api.user_following(user_id, rank_token, max_id=maxid)['users'][x]['username']
+                arr.append(id)
+            except:
+                return (arr)
+
+        maxid += 100
