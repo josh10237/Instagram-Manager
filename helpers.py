@@ -104,6 +104,7 @@ def following_ids(user_id):
 
         maxid += 100
 
+
 def get_following_array(username):
     arr = []
     x = 0
@@ -120,7 +121,7 @@ def get_following_array(username):
             sleep(.1)
         except IndexError:
             # shouldn't be triggered unless something went wrong
-            return(arr)
+            return (arr)
             break
         except:
             # only triggered with bad password or rate limiting error
@@ -130,15 +131,10 @@ def get_following_array(username):
             max_id += 100
             a = api.user_following(user_id, rank_token, max_id=str(max_id))
         x += 1
-    return(arr)
+    return (arr)
 
-def get_DFMB_array(username):
-    arr = get_following_array(username)
-    for user in arr:
-        user_id = arr[user][1]
-        if not is_following_back(user_id):
-
-
-
-
-
+# def get_DFMB_array(username):
+#    arr = get_following_array(username)
+#    for user in arr:
+#        user_id = arr[user][1]
+#        if not is_following_back(user_id):

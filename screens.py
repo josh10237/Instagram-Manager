@@ -9,6 +9,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.anchorlayout import AnchorLayout
 
 SCREEN_MANAGER = ScreenManager()
 
@@ -67,7 +68,7 @@ class DashboardScreen(Screen):
 
     def refresh(self):
         self.ids.refresh.y = Window.height
-#        self.ids.profile_photo.source =
+        #        self.ids.profile_photo.source =
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         self.ids.followers.text = "-"
         self.ids.following.text = "-"
@@ -75,11 +76,11 @@ class DashboardScreen(Screen):
         self.ids.dfmb.text = "-"
         self.ids.avg_likes.text = "-"
         self.ids.engagement.text = "-"
-        followers = 12 #h.getFollowers(c.retrieve_log_in('username'))
-        following = 13 #h.getFollowing(c.retrieve_log_in('username'))
+        followers = 12  # h.getFollowers(c.retrieve_log_in('username'))
+        following = 13  # h.getFollowing(c.retrieve_log_in('username'))
         ratio = followers / following
-        dfmb = 11 #h.getDFMB(c.retrieve_log_in('username'))
-        avglikes = 10 #h.getAverageLikes(c.retrieve_log_in('username'))
+        dfmb = 11  # h.getDFMB(c.retrieve_log_in('username'))
+        avglikes = 10  # h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.followers.text = str(followers)
         self.ids.following.text = str(following)
@@ -93,8 +94,30 @@ class DashboardScreen(Screen):
 
 class SettingsScreen(Screen):
 
+    #    def defaultSettings(self):
+    # 30+
+    #        self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+.png'
+    #        self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+_select.png'
+    #        self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
+    #        self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+.png'
+
+    # Crawl Manual
+    #        self.ids.crawlmanualORautomatic.background_normal = 'images/settingbackgrounds/manual_select.png'
+
+    # Very Low, Low, High
+
+    # Purge Manual
+
+    # 10 days
+
+    # Speed-Slow
+
+    # Limit-100
+
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
+
+    # def tenToHundredPlus(self., val):
 
     def tenplus(self):
         self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+_select.png'
@@ -119,6 +142,24 @@ class SettingsScreen(Screen):
         self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
         self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
         self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+_select.png'
+
+    def manualORautomaticCRAWL(self, val):
+        if val == " ":  # Manual
+            self.ids.crawlmanualORautomatic.background_down = 'images/settingbackgrounds/manual_select.png'
+            self.ids.crawlmanualORautomatic.background_normal = 'images/settingbackgrounds/automatic.png'
+            self.ids.crawlmanualORautomatic.text = "  "
+        if val == "  ":  # Automatic
+            self.ids.crawlmanualORautomatic.background_down = 'images/settingbackgrounds/automatic_select.png'
+            self.ids.crawlmanualORautomatic.background_normal = 'images/settingbackgrounds/manual.png'
+            self.ids.crawlmanualORautomatic.text = " "
+
+#    def manualORautomaticCRAWLSELECT(self, val):
+#        if val == " ":  # Manual
+#            self.ids.crawlmanualORautomatic.background_down = 'images/settingbackgrounds/manual_select.png'
+#            self.ids.crawlmanualORautomatic.text = "  "
+#        if val == "  ":  # Automatic
+#            self.ids.crawlmanualORautomatic.background_down = 'images/settingbackgrounds/automatic_select.png'
+#            self.ids.crawlmanualORautomatic.text = " "
 
     def manual(self, type):
         if type == 'crawl':

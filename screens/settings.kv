@@ -6,9 +6,9 @@
         Label:
             text: "Crawl Settings"
             color: (0, 0, 0, 1)
-            x: (root.width * .5)-50
+            x: (root.width * .5)-45
             y: root.height * 0.95 - 50
-            font_size: 25
+            font_size: 40
             bold: True
 
         Label:
@@ -32,25 +32,37 @@
             y: root.height * 0.89 - 50
             font_size: 15
 
-        Button:
-            id: crawlmanual
-            x: (root.width * .46)-25
-            y: root.height * 0.78 - 20
-            size_hint: .6, .6
-            border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/manual.png'
-            background_down: 'images/settingbackgrounds/manual_select.png'
-            on_release: root.manual('crawl')
+#        Button:
+#            id: crawlmanual
+#            x: (root.width * .46)-25
+#            y: root.height * 0.78 - 20
+#            size_hint: .6, .6
+#            border: 3,3,3,3
+#            background_normal: 'images/settingbackgrounds/manual.png'
+#            background_down: 'images/settingbackgrounds/manual_select.png'
+#            on_release: root.manual('crawl')
+
+#        Button:
+#            id: crawlautomatic
+#            x: (root.width * .54)-25
+#            y: root.height * 0.78 - 20
+#            size_hint: .6, .6
+#            border: 3,3,3,3
+#            background_normal: 'images/settingbackgrounds/automatic.png'
+#            background_down: 'images/settingbackgrounds/automatic_select.png'
+#            on_release: root.automatic('crawl')
 
         Button:
-            id: crawlautomatic
-            x: (root.width * .54)-25
+            id: crawlmanualORautomatic
+# Manual    text: " "
+            x: (root.width * .5) - 50
             y: root.height * 0.78 - 20
-            size_hint: .6, .6
+            size_hint: 0.6, 0.6
             border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/automatic.png'
+            background_normal: 'images/settingbackgrounds/manual.png'
             background_down: 'images/settingbackgrounds/automatic_select.png'
-            on_release: root.automatic('crawl')
+
+            on_release: root.manualORautomaticCRAWL(self.text)
 
         Button:
             x: (root.width * .06)-25
@@ -135,9 +147,9 @@
         Label:
             text: "Purge Settings"
             color: (0, 0, 0, 1)
-            x: (root.width * .5)-50
+            x: (root.width * .5)-45
             y: root.height * 0.65 - 50
-            font_size: 25
+            font_size: 40
             bold: True
 
         Label:
@@ -207,9 +219,9 @@
         Label:
             text: "Advanced Settings"
             color: (0, 0, 0, 1)
-            x: (root.width * .5)-50
+            x: (root.width * .5)-45
             y: root.height * 0.35 - 50
-            font_size: 25
+            font_size: 40
             bold: True
 
         Label:
@@ -289,8 +301,11 @@
 
         Button:
             id: backButton
-            x: (root.width * .46) - 700
-            y: (root.height * 0.78) + 150
+            x: (root.width * .025)-25
+            y: root.height * 0.9 - 15
+
+            # x: (root.width * 0.03) - 30
+            # y: (root.height * .95) - 30
             size_hint: .6, .6
             border: 3,3,3,3
             background_normal: 'images/buttonbackgrounds/backbutton.png'
@@ -298,3 +313,9 @@
             on_release:
                 root.manager.transition.direction = 'right'
                 root.backButton()
+
+            #layout = AnchorLayout(anchor_x='left', anchor_y='top')
+            #layout.add_widget(btn)
+
+            # (root.height * 0.78) + 150
+            # (root.width * .46) - 700
