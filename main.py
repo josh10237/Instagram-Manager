@@ -1,4 +1,5 @@
 import helpers as h
+import cache as c
 from time import sleep
 
 from instagram_private_api import (
@@ -15,64 +16,59 @@ user_id2 = "5565476890"  # ella
 user_id3 = "243946204"  # josh
 user_id4 = "32649564590"  # pratik
 arr = [user_id1, user_id2, user_id3]
-# print(len(api.user_following(user_id2, rank_token, max_id=0)['users']))
-# print(api.user_following(user_id2, rank_token, max_id=100))
-# print(api.user_followers(user_id2, rank_token, max_id=100))
-# user_id = api.user_followers(user_id1, rank_token)['users'][0]['username']
-# print(user_id)
-# user_id = api.user_followers(user_id3, rank_token, max_id=2900)
-# print(user_id)
-# maxid = 0
-# arr = []
-# run = True
-# while run:
-#     for x in range(99):
-#         try:
-#             user_id = api.user_followers(user_id4, rank_token, max_id='100')['users'][x]['username']
-#             arr.append(user_id)
-#             sleep(1)
-#             print(arr)
-#         except:
-#             print("Done")
-#             run = False
-#             break
-#
-#     maxid += 100
-
-# def get following array
-# for x in range(99):
-#      try:
-#         user_id = api.user_followers(user_id4, rank_token, max_id='100')['users'][x]['username']
-#         arr.append(user_id)
-#         sleep(1)
-#      except:
-#          if
-#         print(arr)
-# max_id = 100
-# x = 0
-# a = api.user_following(user_id3, rank_token, max_id=str(max_id))['users'][90]['username']
-# print(a)
 
 
-arr = []
-x = 0
-max_id = 0
-numFollowing = api.username_info(username)['user']['following_count']
-a = api.user_following(user_id3, rank_token)
-while x < numFollowing:
-    try:
-        val = x % 100
-        arr.append(a['users'][val]['username'])
-        print(arr)
-        sleep(.2)
-    except IndexError:
-        print("Done " + str(max_id))
-        break
-    except:
-        print("rate/throttle error")
-        break
-    if ((x % 100) == 0) and (x != 0):
-        max_id += 100
-        a = api.user_following(user_id3, rank_token, max_id=str(max_id))
-    x += 1
-print("Done End " + str(max_id))
+
+def get_following_array(username):
+    return c.retrieve_following()
+    # arr = []
+    # x = 0
+    # max_id = 0
+    # user_id = get_user_id(username)
+    # rank_token = '2abc9200-76e4-11ea-ab20-001a7dda7113'
+    # numFollowing = api.username_info(username)['user']['following_count']
+    # a = api.user_following(user_id, rank_token)
+    # while x < numFollowing:
+    #     try:
+    #         val = x % 100
+    #         tup = (a['users'][val]['username'], a['users'][val]['pk'], a['users'][val]['profile_picture'])
+    #         arr.append(tup)
+    #         sleep(.1)
+    #     except IndexError:
+    #         # shouldn't be triggered unless something went wrong
+    #         return(arr)
+    #         break
+    #     except:
+    #         # only triggered with bad password or rate limiting error
+    #         print("rate/throttle error")
+    #         break
+    #     if ((x % 100) == 0) and (x != 0):
+    #         max_id += 100
+    #         a = api.user_following(user_id, rank_token, max_id=str(max_id))
+    #     x += 1
+    # c.cache_following(arr)
+    # return(arr)
+
+def get_user_id(username):
+    return api.username_info(username)['user']['pk']
+
+def is_following_back(user_id):
+    if api.friendships_show(user_id)['followed_by']:
+        return True
+    else:
+        return False
+
+def get_DFMB_array(username):
+    ret_arr = []
+    arr = get_following_array(username)
+    for user in arr:
+        user_id = user[1]
+        user_name = user[0]
+        if not is_following_back(user_id):
+            ret_arr.append(user_name)
+            sleep(.1)
+            print('added')
+    return ret_arr
+
+if __name__ == '__main__':
+    print(get_DFMB_array('_protikg'))
