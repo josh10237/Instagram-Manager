@@ -93,7 +93,7 @@ class DashboardScreen(Screen):
 
 class SettingsScreen(Screen):
 
-    def settings(self):
+    def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
     def tenplus(self):
