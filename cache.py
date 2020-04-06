@@ -20,5 +20,11 @@ def cache_settings(mutual_friends, crawl_control, ratio_arr, purge_control, whit
     cache['speed'] = speed
     cache['daily_limit'] = daily_limit
 
+def cache_following(arr):
+    cache['following_arr'] = arr
+
+def retrieve_following():
+    return cache['following_arr']
+
 def cache_auth_cookies():
     pass
