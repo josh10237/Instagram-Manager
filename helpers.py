@@ -103,3 +103,42 @@ def following_ids(user_id):
                 return (arr)
 
         maxid += 100
+
+def get_following_array(username):
+    arr = []
+    x = 0
+    max_id = 0
+    user_id = get_user_id(username)
+    rank_token = '2abc9200-76e4-11ea-ab20-001a7dda7113'
+    numFollowing = api.username_info(username)['user']['following_count']
+    a = api.user_following(user_id, rank_token)
+    while x < numFollowing:
+        try:
+            val = x % 100
+            tup = (a['users'][val]['username'], a['users'][val]['pk'], a['users'][val]['profile_picture'])
+            arr.append(tup)
+            sleep(.1)
+        except IndexError:
+            # shouldn't be triggered unless something went wrong
+            return(arr)
+            break
+        except:
+            # only triggered with bad password or rate limiting error
+            print("rate/throttle error")
+            break
+        if ((x % 100) == 0) and (x != 0):
+            max_id += 100
+            a = api.user_following(user_id, rank_token, max_id=str(max_id))
+        x += 1
+    return(arr)
+
+def get_DFMB_array(username):
+    arr = get_following_array(username)
+    for user in arr:
+        user_id = arr[user][1]
+        if not is_following_back(user_id):
+
+
+
+
+
