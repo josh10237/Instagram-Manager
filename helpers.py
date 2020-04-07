@@ -133,8 +133,14 @@ def get_following_array(username):
         x += 1
     return (arr)
 
-# def get_DFMB_array(username):
-#    arr = get_following_array(username)
-#    for user in arr:
-#        user_id = arr[user][1]
-#        if not is_following_back(user_id):
+def get_DFMB_array(username):
+    ret_arr = []
+    arr = get_following_array(username)
+    for user in arr:
+        user_id = user[1]
+        user_name = user[0]
+        if not is_following_back(user_id):
+            ret_arr.append(user_name)
+            sleep(.1)
+            print('added')
+    return ret_arr
