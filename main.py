@@ -8,7 +8,7 @@ from instagram_private_api import (
     __version__ as client_version)
 
 # username = "_protikg"
-#api = Client("testaccforapi", "steelhead21", auto_patch=True)
+api = Client("testaccforapi", "steelhead21", auto_patch=True)
 # rank_token = api.generate_uuid(return_hex=False, seed=None)
 rank_token = '2abc9200-76e4-11ea-ab20-001a7dda7113'
 user_id1 = "32341377860"  # testaccforapi
@@ -110,7 +110,9 @@ def getDFMB(username, over_ride):
     else:  #get real DFMB on real following_array
         return len(get_DFMB_array(username, True))
 
+def get_profile_pic():
+    return api.current_user()['user']['profile_pic_url']
 
 if __name__ == '__main__':
-    print(c.cache['elmo'])
+    print(api.current_user()['user']['profile_pic_url'])
 

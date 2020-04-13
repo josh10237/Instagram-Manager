@@ -23,6 +23,18 @@ def cache_DFMB(arr):
 def retrieve_DFMB():
     return cache['DFMB_arr']
 
+def cache_profile_pic(url):
+    cache['profile_pic'] = url
+
+def retrieve_profile_pic():
+    return cache['profile_pic']
+
+
+
+
+
+
+
 # def cache_api(api):
 #     cache['api'] = api
 #

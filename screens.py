@@ -5,7 +5,7 @@ import accountgrade as ag
 from kivy.core.window import Window, Animation
 from kivy.graphics.context_instructions import Color
 from kivy.properties import NumericProperty, ColorProperty
-from kivy.uix.image import Image
+from kivy.uix.image import Image, AsyncImage
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
@@ -42,6 +42,7 @@ class RememberScreen(Screen):
         #     SCREEN_MANAGER.current = 'newUser'
 
     def continue_remember(self):
+        h.new_API(c.retrieve_log_in('username'), c.retrieve_log_in('password'))
         SCREEN_MANAGER.current = 'dashboard'
 
     def switch_account(self, str):
@@ -65,19 +66,36 @@ class NewUserScreen(Screen):
             SCREEN_MANAGER.current = 'dashboard'
 
 
-class DashboardScreen(Screen):
+class ImageButton(ButtonBehavior, AsyncImage):
+    pass
 
+
+class DashboardScreen(Screen):
     def settings(self):
         SCREEN_MANAGER.current = 'settings'
 
     def refresh(self):
         self.ids.refresh.y = Window.height
-        #  self.ids.profile_photo.source =
+        try:
+            profile_pic = c.retrieve_profile_pic()
+            print(profile_pic)
+            print('1')
+            if len(profile_pic) < 5:
+                profile_pic = h.get_profile_pic()
+                c.cache_profile_pic(profile_pic)
+                print(profile_pic)
+                print('2')
+        except:
+            profile_pic = h.get_profile_pic()
+            c.cache_profile_pic(profile_pic)
+            print(profile_pic)
+            print('3')
+        self.ids.profile_photo.source = profile_pic
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         followers = h.getFollowers(c.retrieve_log_in('username'))
         following = h.getFollowing(c.retrieve_log_in('username'))
         ratio = followers / following
-        dfmb = h.getDFMB(c.retrieve_log_in('username'), 1)
+        dfmb = h.getDFMB(c.retrieve_log_in('username'), 0)
         avglikes = h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.letter_grade.text = ag.letter_grade(followers, ratio, engagemnet, avglikes)
@@ -104,7 +122,7 @@ class SettingsScreen(Screen):
         whitelist_legnth = ''
         speed = ''
         daily_limit = ''
-        try:  #pull from cache
+        try:  # pull from cache
             mutual_friends = c.cache['mutual_friends']
             crawl_control = c.cache['crawl_control']
             purge_control = c.cache['purge_control']
@@ -115,7 +133,7 @@ class SettingsScreen(Screen):
             whitelist_legnth = c.cache['whitelist_legnth']
             speed = c.cache['speed']
             daily_limit = c.cache['daily_limit']
-        except: #cache defualts and re-run
+        except:  # cache defualts and re-run
             c.cache['mutual_friends'] = '30+'
             c.cache['crawl_control'] = 'manual'
             c.cache['purge_control'] = 'manual'
@@ -178,10 +196,6 @@ class SettingsScreen(Screen):
             self.hundredfifty()
         elif daily_limit == '200':
             self.twohundred()
-
-
-
-
 
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'

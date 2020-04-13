@@ -57,6 +57,8 @@ def getDFMB(username, over_ride):
     else:  #get real DFMB on real following_array
         return len(get_DFMB_array(username, True))
 
+def get_profile_pic():
+    return api.current_user()['user']['profile_pic_url']
 
 def getAverageLikes(username):
     count = 0
