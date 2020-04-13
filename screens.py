@@ -70,6 +70,7 @@ class NewUserScreen(Screen):
         elif h.new_API(username, password) == 'error':
             self.ids.error_info.text = 'Invalid Log In'
         else:
+            c.clear_cache()
             c.cache_log_in(username, password)
             SCREEN_MANAGER.current = 'dashboard'
 
