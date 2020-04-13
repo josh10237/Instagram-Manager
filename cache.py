@@ -26,5 +26,14 @@ def cache_following(arr):
 def retrieve_following():
     return cache['following_arr']
 
-def cache_auth_cookies():
-    pass
+def cache_DFMB(arr):
+    cache['DFMB_arr'] = arr
+
+def retrieve_DFMB():
+    return cache['DFMB_arr']
+
+# def cache_api(api):
+#     cache['api'] = api
+#
+# def retrieve_api():
+#     return cache['api']
