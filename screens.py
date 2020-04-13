@@ -19,8 +19,8 @@ class instagramManagerApp(App):
         username = ''
         password = ''
         try:
-            username = c.cache['username']
-            password = c.cache['password']
+            username = c.retrieve_log_in('username')
+            password = c.retrieve_log_in('password')
         except:
             pass
         if len(username) > 1 and len(password) > 1:
@@ -37,6 +37,8 @@ Window.size = (800, 550)
 class RememberScreen(Screen):
     def check_cache(self):
         self.ids.enter_button.text = "Continue as @" + c.retrieve_log_in('username')
+        # if h.remember_api() == 400:
+        #     SCREEN_MANAGER.current = 'newUser'
 
     def continue_remember(self):
         SCREEN_MANAGER.current = 'dashboard'
@@ -50,6 +52,7 @@ class RememberScreen(Screen):
 
 class NewUserScreen(Screen):
     def logIn(self):
+        self.ids.error_info.text = ' '
         username = self.ids.username.text
         password = self.ids.password.text
         if len(username) < 2 or len(password) < 2:
@@ -68,7 +71,7 @@ class DashboardScreen(Screen):
 
     def refresh(self):
         self.ids.refresh.y = Window.height
-        #        self.ids.profile_photo.source =
+        #  self.ids.profile_photo.source =
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         self.ids.followers.text = "-"
         self.ids.following.text = "-"
@@ -76,11 +79,11 @@ class DashboardScreen(Screen):
         self.ids.dfmb.text = "-"
         self.ids.avg_likes.text = "-"
         self.ids.engagement.text = "-"
-        followers = 12  # h.getFollowers(c.retrieve_log_in('username'))
-        following = 13  # h.getFollowing(c.retrieve_log_in('username'))
+        followers = h.getFollowers(c.retrieve_log_in('username'))
+        following = h.getFollowing(c.retrieve_log_in('username'))
         ratio = followers / following
-        dfmb = 11  # h.getDFMB(c.retrieve_log_in('username'))
-        avglikes = 10  # h.getAverageLikes(c.retrieve_log_in('username'))
+        dfmb = h.getDFMB(c.retrieve_log_in('username'), 1)
+        avglikes = h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.followers.text = str(followers)
         self.ids.following.text = str(following)
