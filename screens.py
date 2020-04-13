@@ -38,6 +38,14 @@ Window.size = (800, 550)
 class RememberScreen(Screen):
     def check_cache(self):
         self.ids.enter_button.text = "Continue as @" + c.retrieve_log_in('username')
+        try:
+            profile_pic = c.retrieve_profile_pic()
+            if len(profile_pic) < 5:
+                profile_pic = h.get_profile_pic()
+                c.cache_profile_pic(profile_pic)
+        except:
+            SCREEN_MANAGER.current = 'newUser'
+        self.ids.profile.source = profile_pic
         # if h.remember_api() == 400:
         #     SCREEN_MANAGER.current = 'newUser'
 
@@ -78,18 +86,12 @@ class DashboardScreen(Screen):
         self.ids.refresh.y = Window.height
         try:
             profile_pic = c.retrieve_profile_pic()
-            print(profile_pic)
-            print('1')
             if len(profile_pic) < 5:
                 profile_pic = h.get_profile_pic()
                 c.cache_profile_pic(profile_pic)
-                print(profile_pic)
-                print('2')
         except:
             profile_pic = h.get_profile_pic()
             c.cache_profile_pic(profile_pic)
-            print(profile_pic)
-            print('3')
         self.ids.profile_photo.source = profile_pic
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
         followers = h.getFollowers(c.retrieve_log_in('username'))

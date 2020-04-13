@@ -4,12 +4,21 @@
     FloatLayout:
         size_hint: None, None
 
-        Image:
+        ImageButton:
             source: "images/blankprofile.png"
-            x: (root.width * .5)-170
-            y: root.height * .38
-            size_hint_x: 3.4
-            size_hint_y: 3.4
+            id: profile
+            x: (root.width * .5)-90
+            y: root.height * .45
+            size_hint_x: 2
+            size_hint_y: 2
+            allow_stretch: True
+
+        Image:
+            source: "images/profile_frame_2.png"
+            x: (root.width * .5)-90
+            y: root.height * .45
+            size_hint_x: 2
+            size_hint_y: 2
             allow_stretch: True
 
         Button:

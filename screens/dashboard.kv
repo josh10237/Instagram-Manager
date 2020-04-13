@@ -7,10 +7,18 @@
         ImageButton:
             source: "images/blankprofile.png"
             id: profile_photo
-            x: (root.width * .5)-100
-            y: root.height * .7 - 50
-            size_hint_x: 2
-            size_hint_y: 2
+            x: (root.width * .5)-75
+            y: root.height * .75 - 50
+            size_hint_x: 1.5
+            size_hint_y: 1.5
+            allow_stretch: True
+
+        Image:
+            source: "images/profile_frame_2.png"
+            x: (root.width * .5)-75
+            y: root.height * .75 - 50
+            size_hint_x: 1.5
+            size_hint_y: 1.5
             allow_stretch: True
 
         Label:
