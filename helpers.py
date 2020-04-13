@@ -131,10 +131,23 @@ def get_following_array(username):
             max_id += 100
             a = api.user_following(user_id, rank_token, max_id=str(max_id))
         x += 1
+<<<<<<< HEAD
     return (arr)
+=======
+    return(arr)
 
-# def get_DFMB_array(username):
-#    arr = get_following_array(username)
-#    for user in arr:
-#        user_id = arr[user][1]
-#        if not is_following_back(user_id):
+def get_DFMB_array(username):
+    ret_arr = []
+    arr = get_following_array(username)
+    for user in arr:
+        user_id = arr[user][1]
+        if not is_following_back(user_id):
+            ret_arr.append(arr[user])
+            sleep(.5)
+    return ret_arr
+
+
+
+>>>>>>> 0d4b0a1748ec748b1d592570b62eb2c9665e4fc7
+
+
