@@ -151,33 +151,10 @@ def get_following_array(username):
             max_id += 100
             a = api.user_following(user_id, rank_token, max_id=str(max_id))
         x += 1
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     c.cache_following(arr)
     print("got following arr")
->>>>>>> 4fd80d720e8b8cffe5d68c2123adeb79df404f94
     return (arr)
-=======
-    return(arr)
 
-def get_DFMB_array(username):
-    ret_arr = []
-    arr = get_following_array(username)
-    for user in arr:
-        user_id = arr[user][1]
-        if not is_following_back(user_id):
-            ret_arr.append(arr[user])
-            sleep(.5)
-    return ret_arr
-
-
-
->>>>>>> 0d4b0a1748ec748b1d592570b62eb2c9665e4fc7
-
-
-<<<<<<< HEAD
-=======
 def get_DFMB_array(username, *override):
     #from getDFMB : 1
     ret_arr = []
@@ -207,4 +184,3 @@ def get_DFMB_array(username, *override):
             print("added: " + str(user_name))
     c.cache_DFMB(ret_arr)
     return ret_arr
->>>>>>> 4fd80d720e8b8cffe5d68c2123adeb79df404f94
