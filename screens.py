@@ -149,17 +149,17 @@ class SettingsScreen(Screen):
         else:
             self.ids.verylow.background_normal = 'images/settingbackgrounds/verylow.png'
         if ratio_l:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/low_select.png'
+            self.ids.low.background_normal = 'images/settingbackgrounds/low_select.png'
         else:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/low.png'
+            self.ids.low.background_normal = 'images/settingbackgrounds/low.png'
         if ratio_h:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/high_select.png'
+            self.ids.high.background_normal = 'images/settingbackgrounds/high_select.png'
         else:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/high.png'
+            self.ids.high.background_normal = 'images/settingbackgrounds/high.png'
         if ratio_vh:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/veryhigh_select.png'
+            self.ids.veryhigh.background_normal = 'images/settingbackgrounds/veryhigh_select.png'
         else:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/veryhigh.png'
+            self.ids.veryhigh.background_normal = 'images/settingbackgrounds/veryhigh.png'
         if whitelist_legnth == '5':
             self.fivedays()
         elif whitelist_legnth == '10':
