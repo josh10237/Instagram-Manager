@@ -1,4 +1,4 @@
-from random import randint
+import cache as c
 from time import sleep
 import os.path
 
@@ -17,14 +17,21 @@ except ImportError:
         __version__ as client_version)
 
 global api
-
-
 def new_API(username, password):
     global api
     try:
         api = Client(username, password, auto_patch=True)
+        #c.cache_api(api)
     except:
         return "error"
+
+# def remember_api():
+#     global api
+#     try:
+#         api = c.retrieve_api()
+#         return(200)
+#     except:
+#         return (400)
 
 
 def getFollowing(username):
@@ -35,8 +42,20 @@ def getFollowers(username):
     return api.username_info(username)['user']['follower_count']
 
 
-def getDFMB(username):
-    return randint(0, 800)
+def getDFMB(username, over_ride):
+    if over_ride == 0:  #get cached value
+        DFMB_cache = ''
+        try:
+            DFMB_cache = c.retrieve_DFMB()
+            if DFMB_cache != '':
+                return len(DFMB_cache)
+        except:
+            print("Automatic Ovverride Activated DFMB")
+            over_ride = 1
+    elif over_ride == 1:  #get real DFMB check on cached following_array
+        return len(get_DFMB_array(username))
+    else:  #get real DFMB on real following_array
+        return len(get_DFMB_array(username, True))
 
 
 def getAverageLikes(username):
@@ -106,12 +125,15 @@ def following_ids(user_id):
 
 
 def get_following_array(username):
+    # from getDFMB : 2
     arr = []
     x = 0
     max_id = 0
     user_id = get_user_id(username)
     rank_token = '2abc9200-76e4-11ea-ab20-001a7dda7113'
-    numFollowing = api.username_info(username)['user']['following_count']
+    numFollowing = getFollowing(username)
+    if numFollowing == 0:
+        return ('request limit')
     a = api.user_following(user_id, rank_token)
     while x < numFollowing:
         try:
@@ -121,17 +143,20 @@ def get_following_array(username):
             sleep(.1)
         except IndexError:
             # shouldn't be triggered unless something went wrong
-            return (arr)
-            break
+            return ("index error")
         except:
             # only triggered with bad password or rate limiting error
-            print("rate/throttle error")
-            break
+            return ("rate/throttle error")
         if ((x % 100) == 0) and (x != 0):
             max_id += 100
             a = api.user_following(user_id, rank_token, max_id=str(max_id))
         x += 1
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    c.cache_following(arr)
+    print("got following arr")
+>>>>>>> 4fd80d720e8b8cffe5d68c2123adeb79df404f94
     return (arr)
 =======
     return(arr)
@@ -151,3 +176,35 @@ def get_DFMB_array(username):
 >>>>>>> 0d4b0a1748ec748b1d592570b62eb2c9665e4fc7
 
 
+<<<<<<< HEAD
+=======
+def get_DFMB_array(username, *override):
+    #from getDFMB : 1
+    ret_arr = []
+    ovr = str(override)
+    tmp = ''
+    for character in ovr:
+        if character.isalnum():
+            tmp += character
+    ovr = tmp
+    if ovr == 'True':
+        arr = get_following_array(username)
+    else:
+        following_cache = ''
+        try:
+            following_cache = c.retrieve_following()
+            if following_cache != '':
+                arr = following_cache
+        except:
+            print("Automatic Ovverride Activated Following")
+            arr = get_following_array(username)
+    for user in arr:
+        user_id = user[1]
+        user_name = user[0]
+        if not is_following_back(user_id):
+            ret_arr.append(user_name)
+            sleep(.1)
+            print("added: " + str(user_name))
+    c.cache_DFMB(ret_arr)
+    return ret_arr
+>>>>>>> 4fd80d720e8b8cffe5d68c2123adeb79df404f94
