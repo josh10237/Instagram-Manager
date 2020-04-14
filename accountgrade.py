@@ -37,6 +37,7 @@ def calculate_grade(followers, ratio, engagement, avglikes):
     g2 = calc_avglikes(avglikes)
     g3 = calc_engagment(engagement, g1)
     g4 = calc_ratio(ratio)
+    print(str(g1) + " " + str(g2) + " " + str(g3) + " " + str(g4) + " " + str((g1 * g1 + g2 * g2 + g3 + g4) / 3.5))
     return (g1 * g1 + g2 * g2 + g3 + g4) / 3.5
 
 

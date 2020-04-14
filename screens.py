@@ -106,9 +106,8 @@ class DashboardScreen(Screen):
         self.ids.followers.text = str(followers)
         self.ids.following.text = str(following)
         self.ids.ratio.text = "%.2f" % round(ratio, 2)
-        self.ids.avg_likes.text = "%.2f" % round(ratio, 2)
+        self.ids.avg_likes.text = "%.2f" % round(avglikes, 2)
         self.ids.dfmb.text = str(dfmb)
-        self.ids.avg_likes.text = str(avglikes)
         self.ids.engagement.text = "%.2f" % round(engagemnet, 2)
         self.ids.refresh.y = Window.height * 0.95 - 40
 
