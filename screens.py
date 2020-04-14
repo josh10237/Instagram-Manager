@@ -68,6 +68,7 @@ class NewUserScreen(Screen):
         if len(username) < 2 or len(password) < 2:
             self.ids.error_info.text = 'Please enter a valid log in'
         elif h.new_API(username, password) == 'error':
+
             self.ids.error_info.text = 'Invalid Log In'
         else:
             c.clear_cache()
@@ -84,7 +85,7 @@ class DashboardScreen(Screen):
         SCREEN_MANAGER.current = 'settings'
 
     def refresh(self):
-        self.ids.refresh.y = Window.height
+        self.ids.refresh.y = Window.height + 500
         try:
             profile_pic = c.retrieve_profile_pic()
             if len(profile_pic) < 5:
@@ -109,7 +110,7 @@ class DashboardScreen(Screen):
         self.ids.dfmb.text = str(dfmb)
         self.ids.avg_likes.text = str(avglikes)
         self.ids.engagement.text = "%.2f" % round(engagemnet, 2)
-        self.ids.refresh.y = Window.height * 0.9 - 15
+        self.ids.refresh.y = Window.height * 0.95 - 40
 
 
 class SettingsScreen(Screen):

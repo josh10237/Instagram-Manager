@@ -149,38 +149,38 @@
 
         Button:
             id: crawl_button
-            text: "Start Crawl"
+            text: "Crawl"
             x: (root.width * .5)-250
             y: root.height * 0.1
             size: 200, 40
             size_hint: None, None
             color: 1, 1, 1, 1
             bold: True
-            background_normal: 'images/buttonbackgrounds/crawl_up.png'
-            background_down: 'images/buttonbackgrounds/crawl_down.png'
-            border: 40,40,40,40
+            background_normal: 'images/buttonbackgrounds/up.png'
+            background_down: 'images/buttonbackgrounds/down.png'
+            border: 20,40,20,40
             on_release: # root.crawlScreen()
 
         Button:
             id: purge_button
-            text: "Start Purge"
+            text: "Purge"
             x: (root.width * .5) + 50
             y: root.height * 0.1
             size: 200, 40
             size_hint: None, None
             color: 1, 1, 1, 1
             bold: True
-            background_normal: 'images/buttonbackgrounds/purge_up.png'
-            background_down: 'images/buttonbackgrounds/purge_down.png'
-            border: 40,40,40,40
+            background_normal: 'images/buttonbackgrounds/up.png'
+            background_down: 'images/buttonbackgrounds/down.png'
+            border: 20,40,20,40
             on_release:
 
         Button:
             id: refresh
             x: (root.width * .025)-25
-            y: root.height * 0.9 - 15
+            y: root.height * 0.95 - 40
             size: 200, 40
-            size_hint: .6, .6
+            size_hint: .7, .7
             color: 1, 1, 1, 1
             background_normal: 'images/buttonbackgrounds/refresh.png'
             background_down: 'images/buttonbackgrounds/refresh_active.png'

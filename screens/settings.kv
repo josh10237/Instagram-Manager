@@ -292,10 +292,7 @@
         Button:
             id: backButton
             x: (root.width * .025)-25
-            y: root.height * 0.9 - 15
-
-            # x: (root.width * 0.03) - 30
-            # y: (root.height * .95) - 30
+            y: root.height * 0.95 - 25
             size_hint: .6, .6
             border: 3,3,3,3
             background_normal: 'images/buttonbackgrounds/backbutton.png'
@@ -303,9 +300,3 @@
             on_release:
                 root.manager.transition.direction = 'right'
                 root.backButton()
-
-            #layout = AnchorLayout(anchor_x='left', anchor_y='top')
-            #layout.add_widget(btn)
-
-            # (root.height * 0.78) + 150
-            # (root.width * .46) - 700
