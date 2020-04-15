@@ -11,40 +11,35 @@ def retrieve_log_in(type):
     else:
         return cache['password']
 
-def cache_following(arr):
-    cache['following_arr'] = arr
-
-def retrieve_following():
-    return cache['following_arr']
-
-def cache_DFMB(arr):
-    cache['DFMB_arr'] = arr
-
-def retrieve_DFMB():
-    return cache['DFMB_arr']
-
 def cache_profile_pic(url):
     cache['profile_pic'] = url
 
 def retrieve_profile_pic():
     return cache['profile_pic']
 
+def cache_DFMB_count(int):
+    cache['DFMB'] = int
+
+def retrieve_DFMB_count():
+    return cache['DFMB']
+
+
 def clear_cache():
     cache['username'] = None
     cache['password'] = None
-    cache['following_arr'] = None
-    cache['DFMB_arr'] = None
     cache['profile_pic'] = None
-    cache['mutual_friends'] = None
-    cache['crawl_control'] = None
-    cache['purge_control'] = None
-    cache['ratio_vl'] = None
-    cache['ratio_l'] = None
-    cache['ratio_h'] = None
-    cache['ratio_vh'] = None
-    cache['whitelist_legnth'] = None
-    cache['speed'] = None
-    cache['daily_limit'] = None
+    cache['DFMB'] = None
+    #settings cache- usage of below found in screens.py
+    cache['mutual_friends'] = '30+'
+    cache['crawl_control'] = 'manual'
+    cache['purge_control'] = 'manual'
+    cache['ratio_vl'] = True
+    cache['ratio_l'] = True
+    cache['ratio_h'] = True
+    cache['ratio_vh'] = False
+    cache['whitelist_legnth'] = '10'
+    cache['speed'] = 'slow'
+    cache['daily_limit'] = '100'
 
 
 

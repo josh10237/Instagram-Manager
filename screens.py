@@ -1,10 +1,18 @@
 from kivy.app import App
+from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.boxlayout import BoxLayout
+
 import helpers as h
 import cache as c
+from time import sleep
 import accountgrade as ag
 from kivy.core.window import Window, Animation
 from kivy.graphics.context_instructions import Color
-from kivy.properties import NumericProperty, ColorProperty
+from kivy.properties import NumericProperty, ColorProperty, ObjectProperty
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.textinput import TextInput
@@ -84,6 +92,9 @@ class DashboardScreen(Screen):
     def settings(self):
         SCREEN_MANAGER.current = 'settings'
 
+    def purgeScreen(self):
+        SCREEN_MANAGER.current = 'purge'
+
     def refresh(self):
         self.ids.refresh.y = Window.height + 500
         try:
@@ -99,7 +110,7 @@ class DashboardScreen(Screen):
         followers = h.getFollowers(c.retrieve_log_in('username'))
         following = h.getFollowing(c.retrieve_log_in('username'))
         ratio = followers / following
-        dfmb = h.getDFMB(c.retrieve_log_in('username'), 0)
+        dfmb = h.getDFMB(c.retrieve_log_in('username'))
         avglikes = h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.letter_grade.text = ag.letter_grade(followers, ratio, engagemnet, avglikes)
@@ -115,16 +126,6 @@ class DashboardScreen(Screen):
 class SettingsScreen(Screen):
 
     def pull_settings(self):
-        mutual_friends = ''
-        crawl_control = ''
-        purge_control = ''
-        ratio_vl = ''
-        ratio_l = ''
-        ratio_h = ''
-        ratio_vh = ''
-        whitelist_legnth = ''
-        speed = ''
-        daily_limit = ''
         try:  # pull from cache
             mutual_friends = c.cache['mutual_friends']
             crawl_control = c.cache['crawl_control']
@@ -338,10 +339,52 @@ class SettingsScreen(Screen):
         c.cache['daily_limit'] = '200'
 
 
+class CrawlScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
+
+class PurgeScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
+    @staticmethod
+    def create_row(obj):
+        # layout = GridLayout(cols=2)
+        # layout.add_widget(Button(text='Hello 1'))
+        # layout.add_widget(Button(text='World 1'))
+        # # Im going to add more stuff in the future
+        p1 = PurgeScreen()
+        p1.ids.widget_list.add_widget(Button(text='Hello 1'))
+
+    def toggle_purge(self):
+        if self.ids.toggle_purge_button.text == "Start Purge":
+            c.cache_DFMB_count(len(h.get_DFMB_array(c.retrieve_log_in('username')))) #One damn beautiful line of code
+        else:
+            pass
+
+
+class ListRow(ObjectProperty):
+    def __init__(self, username, userid, profile_pic, percent):
+        self.username = username
+        self.userid = userid
+        self.profile = profile_pic
+        self.percent = percent
+
+    def add_row(self):
+        #print(self.username)
+        PurgeScreen.create_row(self)
+
+
+
 Builder.load_file('screens/login.kv')
 Builder.load_file('screens/dashboard.kv')
 Builder.load_file('screens/settings.kv')
+Builder.load_file('screens/purge.kv')
+# Builder.load_file('screens/crawl.kv')
 SCREEN_MANAGER.add_widget(SettingsScreen(name='settings'))
 SCREEN_MANAGER.add_widget(RememberScreen(name='remember'))
+# SCREEN_MANAGER.add_widget(CrawlScreen(name='crawl'))
+SCREEN_MANAGER.add_widget(PurgeScreen(name='purge'))
 SCREEN_MANAGER.add_widget(NewUserScreen(name='newUser'))
 SCREEN_MANAGER.add_widget(DashboardScreen(name='dashboard'))

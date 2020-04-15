@@ -1,0 +1,82 @@
+<PurgeScreen>:
+    name: 'purge'
+    FloatLayout:
+        size_hint: None, None
+
+        Button:
+            id: backButton
+            x: (root.width * .025)-25
+            y: root.height * 0.95 - 25
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/buttonbackgrounds/backbutton.png'
+            background_down: 'images/buttonbackgrounds/backbutton_select.png'
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.backButton()
+
+        Label:
+            text: "Purge DFMB"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-45
+            y: root.height * 0.95 - 50
+            font_size: 40
+            bold: True
+
+        Button:
+            id: view_whitelist_button
+            text: "View Whitelist"
+            x: (root.width * .5)-350
+            y: root.height * 0.1
+            size: 200, 40
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_normal: 'images/buttonbackgrounds/up.png'
+            background_down: 'images/buttonbackgrounds/down.png'
+            border: 20,40,20,40
+            on_release:
+
+        Button:
+            id: toggle_purge_button
+            text: "Start Purge"
+            x: (root.width * .5) - 100
+            y: root.height * 0.1
+            size: 200, 40
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_normal: 'images/buttonbackgrounds/up.png'
+            background_down: 'images/buttonbackgrounds/down.png'
+            border: 20,40,20,40
+            on_release: root.toggle_purge()
+
+        Button:
+            id: set_auto_button
+            text: "Turn On Automatic"
+            x: (root.width * .5) + 150
+            y: root.height * 0.1
+            size: 200, 40
+            size_hint: None, None
+            color: 1, 1, 1, 1
+            bold: True
+            background_normal: 'images/buttonbackgrounds/up.png'
+            background_down: 'images/buttonbackgrounds/down.png'
+            border: 20,40,20,40
+            on_release:
+
+        ScrollView:
+            widget_list: widget_list
+            size_hint: (None, None)
+            do_scroll_x: False
+            bar_width: 4
+            bar_inactive_color: (.7, .7, .7, .4)
+            size: (root.width * .75, root.height * .65)
+            x: (root.width * .5) - (self.width/2)
+            y: root.height * 0.2
+            GridLayout:
+                id: widget_list
+                cols: 1
+                size_hint_y: 2
+                height: self.minimum_height
+
