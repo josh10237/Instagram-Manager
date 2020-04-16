@@ -3,11 +3,13 @@ import screens
 import cache as c
 import os.path
 from instagram_private_api import (
-        Client, ClientError, ClientLoginError,
-        ClientCookieExpiredError, ClientLoginRequiredError,
-        __version__ as client_version)
+    Client, ClientError, ClientLoginError,
+    ClientCookieExpiredError, ClientLoginRequiredError,
+    __version__ as client_version)
 
 global api
+
+
 def new_API(username, password):
     global api
     try:
@@ -28,13 +30,14 @@ def getDFMB(*username):
     try:
         x = c.retrieve_DFMB_count()
         if x is not None:
-            return(x)
+            return (x)
     except:
         return ("Run Purge")
 
 
 def get_profile_pic():
     return api.current_user()['user']['profile_pic_url']
+
 
 def getAverageLikes(username):
     count = 0
@@ -112,6 +115,7 @@ def get_following_array(username):
         arr.append((val['username'], val['pk'], val['profile_picture']))
     return arr
 
+
 def get_DFMB_array(username):
     ret_arr = []
     arr = get_following_array(username)
@@ -123,15 +127,14 @@ def get_DFMB_array(username):
         x += 1
         if not is_following_back(user_id):
             ret_arr.append(user_name)
-            percent = x/len(arr)
+            percent = x / len(arr)
             DFMB_column(user_name, user_id, profile, percent)
             print("added: " + str(user_name))
     return ret_arr
 
-def DFMB_column(user_name, user_id, profile, percent):
-    p = screens.ListRow(user_name, user_id, profile, percent)
-    p.add_row()
 
+def DFMB_column(user_name, user_id, profile, percent):
+    screens.PurgeScreen.create_row(user_name, user_id, profile, percent)
 
 # def DFMB_column(username):
 #     ret_arr = []
@@ -150,4 +153,3 @@ def DFMB_column(user_name, user_id, profile, percent):
 #             p.add_row()
 #             print("added: " + str(user_name))
 #     return ret_arr
-

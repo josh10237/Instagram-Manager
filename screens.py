@@ -348,18 +348,16 @@ class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
-    @staticmethod
-    def create_row(obj):
+    def create_row(self, user_name, user_id, profile, percent):
         # layout = GridLayout(cols=2)
         # layout.add_widget(Button(text='Hello 1'))
         # layout.add_widget(Button(text='World 1'))
         # # Im going to add more stuff in the future
-        p1 = PurgeScreen()
-        p1.ids.widget_list.add_widget(Button(text='Hello 1'))
+        self.ids.widget_list.add_widget(Button(text='Hello 1'))
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
-            c.cache_DFMB_count(len(h.get_DFMB_array(c.retrieve_log_in('username')))) #One damn beautiful line of code
+            c.cache_DFMB_count(len(h.get_DFMB_array(c.retrieve_log_in('username')))) # One damn beautiful line of code
         else:
             pass
 
@@ -373,7 +371,7 @@ class ListRow(ObjectProperty):
 
     def add_row(self):
         #print(self.username)
-        PurgeScreen.create_row(self)
+        PurgeScreen.create_row()
 
 
 
