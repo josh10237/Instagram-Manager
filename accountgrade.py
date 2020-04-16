@@ -48,6 +48,8 @@ def calc_followers(followers):
 
 
 def calc_avglikes(avglikes):
+    if avglikes == 0:
+        return .25
     x = (m.log(avglikes, 10)) / 4
     x = correction(x)
     return x
