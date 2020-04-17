@@ -349,11 +349,12 @@ class PurgeScreen(Screen):
         SCREEN_MANAGER.current = 'dashboard'
 
     def create_row(self, user_name, user_id, profile, percent):
-        # layout = GridLayout(cols=2)
-        # layout.add_widget(Button(text='Hello 1'))
-        # layout.add_widget(Button(text='World 1'))
-        # # Im going to add more stuff in the future
-        self.ids.widget_list.add_widget(Button(text='Hello 1'))
+        layout = GridLayout(rows=1, cols=3)
+        layout.add_widget(ImageButton(source=c.retrieve_profile_pic()))
+        layout.add_widget(Label(text="@" + c.retrieve_log_in('username'), color=(0, 0, 0, 1), font_size=25))
+        layout.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
+                                 background_down='images/buttonbackgrounds/unfollow_select.png'))
+        self.ids.widget_list.add_widget(layout)
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
