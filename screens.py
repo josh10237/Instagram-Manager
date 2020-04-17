@@ -348,9 +348,23 @@ class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
+    def add_row(self, user_name, user_id, profile, percent):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=profile))
+        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
+        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=25))
+        bsplit = GridLayout(rows=1)
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
+                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100))
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
+                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=None,
+                                 width=20))
+        layout.add_widget(bsplit)
+        self.ids.widget_list.add_widget(layout)
+
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
-            c.cache_DFMB_count(len(h.get_DFMB_array(c.retrieve_log_in('username')))) # One damn beautiful line of code
+            c.cache_DFMB_count(len(h.get_DFMB_array(self, c.retrieve_log_in('username')))) # One damn beautiful line of code
         else:
             pass
 

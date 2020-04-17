@@ -121,7 +121,7 @@ def get_following_array(username):
     return arr
 
 
-def get_DFMB_array(username):
+def get_DFMB_array(object, username):
     ret_arr = []
     arr = get_following_array(username)
     x = 0
@@ -133,18 +133,14 @@ def get_DFMB_array(username):
         if not is_following_back(user_id):
             ret_arr.append(user_name)
             percent = x / len(arr)
-            DFMB_column(user_name, user_id, profile, percent)
+            DFMB_column(object, user_name, user_id, profile, percent)
             print("added: " + str(user_name))
     return ret_arr
 
 
-def DFMB_column(user_name, user_id, profile, percent):
-    layout = GridLayout(rows=1, cols=3)
-    layout.add_widget(screens.ImageButton(source=c.retrieve_profile_pic()))
-    layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
-    layout.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                             background_down='images/buttonbackgrounds/unfollow_select.png'))
-    self.ids.widget_list.add_widget(layout)
+def DFMB_column(object, user_name, user_id, profile, percent):
+    object.add_row(user_name, user_id, profile, percent)
+
 
 # def DFMB_column(username):
 #     ret_arr = []
