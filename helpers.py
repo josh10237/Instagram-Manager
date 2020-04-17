@@ -1,4 +1,9 @@
 from time import sleep
+
+from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+
 import screens
 import cache as c
 import os.path
@@ -134,7 +139,12 @@ def get_DFMB_array(username):
 
 
 def DFMB_column(user_name, user_id, profile, percent):
-    screens.PurgeScreen.create_row(user_name, user_id, profile, percent)
+    layout = GridLayout(rows=1, cols=3)
+    layout.add_widget(screens.ImageButton(source=c.retrieve_profile_pic()))
+    layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
+    layout.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
+                             background_down='images/buttonbackgrounds/unfollow_select.png'))
+    self.ids.widget_list.add_widget(layout)
 
 # def DFMB_column(username):
 #     ret_arr = []

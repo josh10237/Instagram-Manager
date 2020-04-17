@@ -348,32 +348,11 @@ class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
-    def create_row(self, user_name, user_id, profile, percent):
-        layout = GridLayout(rows=1, cols=3)
-        layout.add_widget(ImageButton(source=c.retrieve_profile_pic()))
-        layout.add_widget(Label(text="@" + c.retrieve_log_in('username'), color=(0, 0, 0, 1), font_size=25))
-        layout.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                 background_down='images/buttonbackgrounds/unfollow_select.png'))
-        self.ids.widget_list.add_widget(layout)
-
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
             c.cache_DFMB_count(len(h.get_DFMB_array(c.retrieve_log_in('username')))) # One damn beautiful line of code
         else:
             pass
-
-
-class ListRow(ObjectProperty):
-    def __init__(self, username, userid, profile_pic, percent):
-        self.username = username
-        self.userid = userid
-        self.profile = profile_pic
-        self.percent = percent
-
-    def add_row(self):
-        #print(self.username)
-        PurgeScreen.create_row()
-
 
 
 Builder.load_file('screens/login.kv')
