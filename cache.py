@@ -23,12 +23,18 @@ def cache_DFMB_count(int):
 def retrieve_DFMB_count():
     return cache['DFMB']
 
+def cache_dash(arr):
+    cache['dash'] = arr
+
+def retrieve_dash():
+    return cache['dash']
 
 def clear_cache():
     cache['username'] = None
     cache['password'] = None
     cache['profile_pic'] = None
     cache['DFMB'] = None
+    cache['dash'] = None
     #settings cache- usage of below found in screens.py
     cache['mutual_friends'] = '30+'
     cache['crawl_control'] = 'manual'

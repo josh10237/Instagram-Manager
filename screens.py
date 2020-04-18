@@ -5,7 +5,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
-
+from threading import Thread
 import helpers as h
 import cache as c
 from time import sleep
@@ -50,15 +50,12 @@ class RememberScreen(Screen):
             profile_pic = c.retrieve_profile_pic()
             if len(profile_pic) < 5:
                 profile_pic = h.get_profile_pic()
-                c.cache_profile_pic(profile_pic)
         except:
             SCREEN_MANAGER.current = 'newUser'
         self.ids.profile.source = profile_pic
-        # if h.remember_api() == 400:
-        #     SCREEN_MANAGER.current = 'newUser'
+        h.startThread('dash')
 
     def continue_remember(self):
-        h.new_API(c.retrieve_log_in('username'), c.retrieve_log_in('password'))
         SCREEN_MANAGER.current = 'dashboard'
 
     def switch_account(self, str):
@@ -95,7 +92,10 @@ class DashboardScreen(Screen):
     def purgeScreen(self):
         SCREEN_MANAGER.current = 'purge'
 
-    def refresh(self):
+    def refresh(self, *args):
+        arg1 = ''
+        for arg in args:
+            arg1 = arg
         self.ids.refresh.y = Window.height + 500
         try:
             profile_pic = c.retrieve_profile_pic()
@@ -107,11 +107,30 @@ class DashboardScreen(Screen):
             c.cache_profile_pic(profile_pic)
         self.ids.profile_photo.source = profile_pic
         self.ids.user_label.text = "@" + c.retrieve_log_in('username')
-        followers = h.getFollowers(c.retrieve_log_in('username'))
-        following = h.getFollowing(c.retrieve_log_in('username'))
+        arr = c.retrieve_dash()
+        try:
+            followers = arr[0]
+            following = arr[1]
+            dfmb = arr[2]
+            avglikes = arr[3]
+            print('auto')
+        except:
+            h.dashThread()
+            arr = c.retrieve_dash()
+            followers = arr[0]
+            following = arr[1]
+            dfmb = arr[2]
+            avglikes = arr[3]
+            print('error- manual')
+        if arg1 == 'manual':
+            h.dashThread()
+            arr = c.retrieve_dash()
+            followers = arr[0]
+            following = arr[1]
+            dfmb = arr[2]
+            avglikes = arr[3]
+            print('manual refresh')
         ratio = followers / following
-        dfmb = h.getDFMB(c.retrieve_log_in('username'))
-        avglikes = h.getAverageLikes(c.retrieve_log_in('username'))
         engagemnet = avglikes / followers
         self.ids.letter_grade.text = ag.letter_grade(followers, ratio, engagemnet, avglikes)
         self.ids.followers.text = str(followers)
@@ -122,6 +141,33 @@ class DashboardScreen(Screen):
         self.ids.engagement.text = "%.2f" % round(engagemnet, 2)
         self.ids.refresh.y = Window.height * 0.95 - 40
 
+class CrawlScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
+
+class PurgeScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
+    def add_row(self, user_name, user_id, profile, percent):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=profile))
+        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
+        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=25))
+        bsplit = GridLayout(rows=1)
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
+                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100))
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
+                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3)))
+        layout.add_widget(bsplit)
+        self.ids.widget_list.add_widget(layout)
+
+    def toggle_purge(self):
+        if self.ids.toggle_purge_button.text == "Start Purge":
+            c.cache_DFMB_count(len(h.get_DFMB_array(self, c.retrieve_log_in('username')))) # One damn beautiful line of code
+        else:
+            pass
 
 class SettingsScreen(Screen):
 
@@ -337,35 +383,6 @@ class SettingsScreen(Screen):
         self.ids.hundredfifty.background_normal = 'images/settingbackgrounds/150.png'
         self.ids.twohundred.background_normal = 'images/settingbackgrounds/200_select.png'
         c.cache['daily_limit'] = '200'
-
-
-class CrawlScreen(Screen):
-    def backButton(self):
-        SCREEN_MANAGER.current = 'dashboard'
-
-
-class PurgeScreen(Screen):
-    def backButton(self):
-        SCREEN_MANAGER.current = 'dashboard'
-
-    def add_row(self, user_name, user_id, profile, percent):
-        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
-        layout.add_widget(ImageButton(source=profile))
-        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
-        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=25))
-        bsplit = GridLayout(rows=1)
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100))
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3)))
-        layout.add_widget(bsplit)
-        self.ids.widget_list.add_widget(layout)
-
-    def toggle_purge(self):
-        if self.ids.toggle_purge_button.text == "Start Purge":
-            c.cache_DFMB_count(len(h.get_DFMB_array(self, c.retrieve_log_in('username')))) # One damn beautiful line of code
-        else:
-            pass
 
 
 Builder.load_file('screens/login.kv')

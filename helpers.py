@@ -7,6 +7,8 @@ from kivy.uix.label import Label
 import screens
 import cache as c
 import os.path
+from threading import Thread
+
 from instagram_private_api import (
     Client, ClientError, ClientLoginError,
     ClientCookieExpiredError, ClientLoginRequiredError,
@@ -14,20 +16,39 @@ from instagram_private_api import (
 
 global api
 
-
 def new_API(username, password):
     global api
     try:
         api = Client(username, password, auto_patch=True)
-    except:
+    except ClientError:
         return "error"
 
+def startThread(args):
+    if args == 'dash':
+        Thread(target=dashThread()).start()
+        Thread.daemon = True
+    elif args == 'purge':
+        Thread(target=purgeThread()).start()
+        Thread.daemon = True
+
+def dashThread():
+    username = c.retrieve_log_in('username')
+    followers = getFollowers(username)
+    following = getFollowing(username)
+    dfmb = getDFMB()
+    avglikes = getAverageLikes(username)
+    c.cache_dash([followers, following, dfmb, avglikes])
+
+
+def purgeThread():
+    pass
 
 def getFollowing(username):
     return api.username_info(username)['user']['following_count']
 
 
 def getFollowers(username):
+    print('getfollowers')
     return api.username_info(username)['user']['follower_count']
 
 
@@ -37,6 +58,8 @@ def getDFMB(*username):
         if x is not None:
             return (x)
     except:
+        return ("Run Purge")
+    if x == None:
         return ("Run Purge")
 
 
