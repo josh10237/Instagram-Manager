@@ -357,8 +357,7 @@ class PurgeScreen(Screen):
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
                                  background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100))
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=None,
-                                 width=20))
+                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3)))
         layout.add_widget(bsplit)
         self.ids.widget_list.add_widget(layout)
 
