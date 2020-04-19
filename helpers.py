@@ -1,5 +1,6 @@
 from time import sleep
 
+from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -23,13 +24,18 @@ def new_API(username, password):
     except ClientError:
         return "error"
 
-def startThread(args):
+
+def startThread(args, obj):
     if args == 'dash':
         Thread(target=dashThread()).start()
         Thread.daemon = True
     elif args == 'purge':
-        Thread(target=purgeThread()).start()
+        Thread(target=purgeThread(obj)).start()
         Thread.daemon = True
+    elif args == 'clock':
+        Thread(target=clockThread(obj)).start()
+        Thread.daemon = True
+
 
 def dashThread():
     username = c.retrieve_log_in('username')
@@ -39,9 +45,6 @@ def dashThread():
     avglikes = getAverageLikes(username)
     c.cache_dash([followers, following, dfmb, avglikes])
 
-
-def purgeThread():
-    pass
 
 def getFollowing(username):
     return api.username_info(username)['user']['following_count']
@@ -54,7 +57,7 @@ def getFollowers(username):
 
 def getDFMB(*username):
     try:
-        x = c.retrieve_DFMB_count()
+        x = c.retrieve_dash()[2]
         if x is not None:
             return (x)
     except:
@@ -133,6 +136,13 @@ def following_ids(user_id):
         maxid += 100
 
 
+def purgeThread(obj):
+    dfmb = (len(get_DFMB_array(obj, c.retrieve_log_in('username'))))
+    dash = c.retrieve_dash()
+    dash[2] = dfmb
+    c.cache_dash([dash])
+
+
 def get_following_array(username):
     arr = []
     user_id = get_user_id(username)
@@ -148,6 +158,7 @@ def get_DFMB_array(object, username):
     ret_arr = []
     arr = get_following_array(username)
     x = 0
+    startThread('purge2', object)
     for user in arr:
         profile = user[2]
         user_id = user[1]
@@ -156,29 +167,16 @@ def get_DFMB_array(object, username):
         if not is_following_back(user_id):
             ret_arr.append(user_name)
             percent = x / len(arr)
-            DFMB_column(object, user_name, user_id, profile, percent)
+            DFMB_row(object, user_name, user_id, profile, percent)
             print("added: " + str(user_name))
     return ret_arr
 
-
-def DFMB_column(object, user_name, user_id, profile, percent):
+def DFMB_row(object, user_name, user_id, profile, percent):
+    print("col: " + str(user_name) + "    percent: " + str(percent))
     object.add_row(user_name, user_id, profile, percent)
 
-
-# def DFMB_column(username):
-#     ret_arr = []
-#     x = 0
-#     arr = get_following_array(username)
-#     total = len(arr)
-#     for user in arr:
-#         profile = user[2]
-#         user_id = user[1]
-#         user_name = user[0]
-#         x += 1
-#         percent = x/total
-#         if not is_following_back(user_id):
-#             ret_arr.append(user_name)
-#             p = screens.ListRow(user_name, user_id, profile)
-#             p.add_row()
-#             print("added: " + str(user_name))
-#     return ret_arr
+def clockThread():
+    while True:
+        pass
+        # Clock.tick()
+        #TODO update UI

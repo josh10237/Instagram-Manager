@@ -53,7 +53,7 @@ class RememberScreen(Screen):
         except:
             SCREEN_MANAGER.current = 'newUser'
         self.ids.profile.source = profile_pic
-        h.startThread('dash')
+        h.startThread('dash', self)
 
     def continue_remember(self):
         SCREEN_MANAGER.current = 'dashboard'
@@ -165,7 +165,7 @@ class PurgeScreen(Screen):
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
-            c.cache_DFMB_count(len(h.get_DFMB_array(self, c.retrieve_log_in('username')))) # One damn beautiful line of code
+            h.startThread('purge', self)
         else:
             pass
 

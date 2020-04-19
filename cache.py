@@ -17,23 +17,18 @@ def cache_profile_pic(url):
 def retrieve_profile_pic():
     return cache['profile_pic']
 
-def cache_DFMB_count(int):
-    cache['DFMB'] = int
-
-def retrieve_DFMB_count():
-    return cache['DFMB']
-
 def cache_dash(arr):
+    # [followers, following, dfmb, avglikes]
     cache['dash'] = arr
 
 def retrieve_dash():
+    # arr[0] = followers, arr[1] = following, arr[2] = dfmb, arr[3] = avglikes
     return cache['dash']
 
 def clear_cache():
     cache['username'] = None
     cache['password'] = None
     cache['profile_pic'] = None
-    cache['DFMB'] = None
     cache['dash'] = None
     #settings cache- usage of below found in screens.py
     cache['mutual_friends'] = '30+'
