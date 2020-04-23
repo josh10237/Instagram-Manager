@@ -21,6 +21,8 @@ from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.anchorlayout import AnchorLayout
+from concurrent.futures import ThreadPoolExecutor
+import threading
 
 SCREEN_MANAGER = ScreenManager()
 
@@ -155,16 +157,19 @@ class PurgeScreen(Screen):
     def add_row(self, profile, user_id, user_name, percent):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=profile))
-        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
-        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=25))
+        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=20))
+        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=20))
         bsplit = GridLayout(rows=1)
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100))
+                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100, id=str(user_id), on_release=self.unfollow()))
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3)))
+                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3), id=str(user_id)))
         layout.add_widget(bsplit)
         self.ids.widget_list.add_widget(layout)
         self.update_percent(percent)
+
+    def unfollow(self):
+        print(self)
 
     def update_percent(self, percent):
         pc = percent * 100
@@ -175,13 +180,11 @@ class PurgeScreen(Screen):
         if self.ids.toggle_purge_button.text == "Start Purge":
             self.ids.widget_list.clear_widgets()
             print('started call')
-            x = threading.Thread(target=self.purgeThread(), daemon=True)
+            self.ids.toggle_purge_button.text = "Running..."
+            x = threading.Thread(target=self.purgeThread, daemon=True)
             x.start()
-        else:
-            pass
 
     def purgeThread(self):
-        # dfmb = (len(h.get_DFMB_array(obj, c.retrieve_log_in('username'))))
         tot = 0
         dfmb = 0
         following_arr = h.get_following_array(c.retrieve_log_in('username'))
@@ -192,14 +195,15 @@ class PurgeScreen(Screen):
             else:
                 #profile, user_id, username, percent
                 self.add_row(arr[0], arr[1], arr[2], arr[3])
-                percent = arr[3]
+                self.update_percent(arr[3])
                 dfmb += 1
-            tot += 1
+            tot += 4
         dash = c.retrieve_dash()
         print(str(dash) + "  " + str(tot))
         dash[2] = dfmb
         print("New Dash: " + str(dash))
         c.cache_dash(dash)
+
 
 
 class SettingsScreen(Screen):

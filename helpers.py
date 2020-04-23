@@ -124,27 +124,6 @@ def get_following_array(username):
         arr.append((val['username'], val['pk'], val['profile_picture']))
     return arr
 
-
-def get_DFMB_array(object, username):
-    ret_arr = []
-    arr = get_following_array(username)
-    x = 0
-    for user in arr:
-        profile = user[2]
-        user_id = user[1]
-        user_name = user[0]
-        x += 1
-        if not is_following_back(user_id):
-            ret_arr.append(user_name)
-            percent = x / len(arr)
-            DFMB_row(object, user_name, user_id, profile, percent)
-            print("added: " + str(user_name))
-    return ret_arr
-
-def DFMB_row(object, user_name, user_id, profile, percent):
-    print("col: " + str(user_name) + "    percent: " + str(percent))
-    object.add_row(user_name, user_id, profile, percent)
-
 def dynamic_DFMB(arr, step):
     print("Running " + str(step + 1) + " of " + str(len(arr)))
     user = arr[step]

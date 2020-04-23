@@ -159,7 +159,9 @@
             background_normal: 'images/buttonbackgrounds/up.png'
             background_down: 'images/buttonbackgrounds/down.png'
             border: 20,40,20,40
-            on_release: # root.crawlScreen()
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.crawlScreen()
 
         Button:
             id: purge_button
@@ -173,7 +175,9 @@
             background_normal: 'images/buttonbackgrounds/up.png'
             background_down: 'images/buttonbackgrounds/down.png'
             border: 20,40,20,40
-            on_release: root.purgeScreen()
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.purgeScreen()
 
         Button:
             id: refresh
