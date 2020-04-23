@@ -1,5 +1,5 @@
 import threading
-
+from kivy.uix.popup import Popup
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
@@ -96,6 +96,24 @@ class DashboardScreen(Screen):
     def purgeScreen(self):
         SCREEN_MANAGER.current = 'purge'
 
+    def AGbreakdown(self):
+        if self.ids.followers_grade.text != "-":
+            self.ids.followers_grade.color = (0, 0, 0, 0)
+            self.ids.avglikes_grade.color = (0, 0, 0, 0)
+            self.ids.engagement_grade.color = (0, 0, 0, 0)
+            self.ids.ratio_grade.color = (0, 0, 0, 0)
+            self.ids.followers_grade.text = "-"
+        else:
+            arr = c.retrieve_grade_tips()
+            self.ids.followers_grade.text = "%" + str("%.2f" % round(arr[0], 2))
+            self.ids.followers_grade.color = (0, 0, 0, 1)
+            self.ids.avglikes_grade.text = "%" + str("%.2f" % round(arr[1], 2))
+            self.ids.avglikes_grade.color = (0, 0, 0, 1)
+            self.ids.engagement_grade.text = "%" + str("%.2f" % round(arr[2], 2))
+            self.ids.engagement_grade.color = (0, 0, 0, 1)
+            self.ids.ratio_grade.text = "%" + str("%.2f" % round(arr[3], 2))
+            self.ids.ratio_grade.color = (0, 0, 0, 1)
+
     def refresh(self, *args):
         arg1 = ''
         for arg in args:
@@ -161,7 +179,7 @@ class PurgeScreen(Screen):
         layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=20))
         bsplit = GridLayout(rows=1)
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100, id=str(user_id), on_release=self.unfollow()))
+                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100, id=str(user_id)))
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
                                  background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3), id=str(user_id)))
         layout.add_widget(bsplit)
@@ -203,9 +221,6 @@ class PurgeScreen(Screen):
         dash[2] = dfmb
         print("New Dash: " + str(dash))
         c.cache_dash(dash)
-
-
-
 class SettingsScreen(Screen):
 
     def pull_settings(self):

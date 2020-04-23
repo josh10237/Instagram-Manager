@@ -1,4 +1,5 @@
 import math as m
+import cache as c
 
 def letter_grade(followers, ratio, engagement, avglikes):
     pc = calculate_grade(followers, ratio, engagement, avglikes)
@@ -34,11 +35,13 @@ def letter_grade(followers, ratio, engagement, avglikes):
 
 def calculate_grade(followers, ratio, engagement, avglikes):
     g1 = calc_followers(followers)
+    g1 = g1 * g1
     g2 = calc_avglikes(avglikes)
+    g2 = g2 * g2
     g3 = calc_engagment(engagement, g1)
     g4 = calc_ratio(ratio)
-    print(str(g1) + " " + str(g2) + " " + str(g3) + " " + str(g4) + " " + str((g1 * g1 + g2 * g2 + g3 + g4) / 3.5))
-    return (g1 * g1 + g2 * g2 + g3 + g4) / 3.5
+    c.cache_grade_tips([g1, g2, g3, g4])
+    return (g1 + g2 + g3 + g4) / 3.5
 
 
 def calc_followers(followers):

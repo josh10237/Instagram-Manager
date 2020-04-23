@@ -36,6 +36,14 @@ def dash_set_up():
     avglikes = h.getAverageLikes(username)
     cache_dash([followers, following, dfmb, avglikes])
 
+def cache_grade_tips(arr):
+    #followers, likes, engagement, ratio
+    cache['grade_tips'] = arr
+
+def retrieve_grade_tips():
+    return cache['grade_tips']
+
+
 def clear_cache():
     cache['username'] = None
     cache['password'] = None
