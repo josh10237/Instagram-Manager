@@ -1,3 +1,5 @@
+import threading
+
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
@@ -53,13 +55,13 @@ class RememberScreen(Screen):
         except:
             SCREEN_MANAGER.current = 'newUser'
         self.ids.profile.source = profile_pic
-        h.startThread('dash', self)
+        c.dash_set_up()
 
     def continue_remember(self):
         SCREEN_MANAGER.current = 'dashboard'
 
-    def switch_account(self, str):
-        if str == 'press':
+    def switch_account(self, str1):
+        if str1 == 'press':
             self.ids.switch_acc.color = (0, 0, 0, .7)
         else:
             SCREEN_MANAGER.current = 'newUser'
@@ -115,7 +117,7 @@ class DashboardScreen(Screen):
             avglikes = arr[3]
             print('auto')
         except:
-            h.dashThread()
+            c.dash_set_up()
             arr = c.retrieve_dash()
             followers = arr[0]
             following = arr[1]
@@ -123,7 +125,7 @@ class DashboardScreen(Screen):
             avglikes = arr[3]
             print('error- manual')
         if arg1 == 'manual':
-            h.dashThread()
+            c.dash_set_up()
             arr = c.retrieve_dash()
             followers = arr[0]
             following = arr[1]
@@ -150,7 +152,7 @@ class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
-    def add_row(self, user_name, user_id, profile, percent):
+    def add_row(self, profile, user_id, user_name, percent):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=profile))
         layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=25))
@@ -162,12 +164,43 @@ class PurgeScreen(Screen):
                                  background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3)))
         layout.add_widget(bsplit)
         self.ids.widget_list.add_widget(layout)
+        self.update_percent(percent)
+
+    def update_percent(self, percent):
+        pc = percent * 100
+        p = "%.2f" % round(pc, 2)
+        self.ids.pc.text = "%" + p
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
-            h.startThread('purge', self)
+            self.ids.widget_list.clear_widgets()
+            print('started call')
+            x = threading.Thread(target=self.purgeThread(), daemon=True)
+            x.start()
         else:
             pass
+
+    def purgeThread(self):
+        # dfmb = (len(h.get_DFMB_array(obj, c.retrieve_log_in('username'))))
+        tot = 0
+        dfmb = 0
+        following_arr = h.get_following_array(c.retrieve_log_in('username'))
+        while tot < len(following_arr):
+            arr = h.dynamic_DFMB(following_arr, tot)
+            if arr[0] == 'nil':
+                self.update_percent(arr[1])
+            else:
+                #profile, user_id, username, percent
+                self.add_row(arr[0], arr[1], arr[2], arr[3])
+                percent = arr[3]
+                dfmb += 1
+            tot += 1
+        dash = c.retrieve_dash()
+        print(str(dash) + "  " + str(tot))
+        dash[2] = dfmb
+        print("New Dash: " + str(dash))
+        c.cache_dash(dash)
+
 
 class SettingsScreen(Screen):
 

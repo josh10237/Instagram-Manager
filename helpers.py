@@ -25,39 +25,18 @@ def new_API(username, password):
         return "error"
 
 
-def startThread(args, obj):
-    if args == 'dash':
-        Thread(target=dashThread()).start()
-        Thread.daemon = True
-    elif args == 'purge':
-        Thread(target=purgeThread(obj)).start()
-        Thread.daemon = True
-    elif args == 'clock':
-        Thread(target=clockThread(obj)).start()
-        Thread.daemon = True
-
-
-def dashThread():
-    username = c.retrieve_log_in('username')
-    followers = getFollowers(username)
-    following = getFollowing(username)
-    dfmb = getDFMB()
-    avglikes = getAverageLikes(username)
-    c.cache_dash([followers, following, dfmb, avglikes])
-
-
-def getFollowing(username):
+def getFollowing(username):  
     return api.username_info(username)['user']['following_count']
 
 
 def getFollowers(username):
-    print('getfollowers')
     return api.username_info(username)['user']['follower_count']
 
 
 def getDFMB(*username):
     try:
         x = c.retrieve_dash()[2]
+        print(x)
         if x is not None:
             return (x)
     except:
@@ -135,14 +114,6 @@ def following_ids(user_id):
 
         maxid += 100
 
-
-def purgeThread(obj):
-    dfmb = (len(get_DFMB_array(obj, c.retrieve_log_in('username'))))
-    dash = c.retrieve_dash()
-    dash[2] = dfmb
-    c.cache_dash([dash])
-
-
 def get_following_array(username):
     arr = []
     user_id = get_user_id(username)
@@ -158,7 +129,6 @@ def get_DFMB_array(object, username):
     ret_arr = []
     arr = get_following_array(username)
     x = 0
-    startThread('purge2', object)
     for user in arr:
         profile = user[2]
         user_id = user[1]
@@ -175,8 +145,16 @@ def DFMB_row(object, user_name, user_id, profile, percent):
     print("col: " + str(user_name) + "    percent: " + str(percent))
     object.add_row(user_name, user_id, profile, percent)
 
-def clockThread():
-    while True:
-        pass
-        # Clock.tick()
-        #TODO update UI
+def dynamic_DFMB(arr, step):
+    print("Running " + str(step + 1) + " of " + str(len(arr)))
+    user = arr[step]
+    user_id = user[1]
+    percent = (step + 1) / len(arr)
+    if is_following_back(user_id):
+        print("Following you back :)")
+        return ['nil', percent]
+    else:
+        user_name = user[0]
+        profile = user[2]
+        print("DFMB :(   " + str(user_name))
+        return [profile, user_id, user_name, percent]

@@ -79,3 +79,10 @@
                 size_hint_y: None
                 height: sum(x.height for x in self.children)
 
+        Label:
+            text: "0%"
+            id: pc
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-(self.width/2)
+            y: root.height * 0.03 - 25
+            font_size: 15
