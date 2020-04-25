@@ -219,8 +219,8 @@ class PurgeScreen(Screen):
 
     def remove_row(self, userRowObj):
         print("got back")
-        # self.ids.widget_list.remove_widget(userRowObj)
-        self.ids.widget_list.clear_widgets()
+        self.l.ids.widget_list.remove_widget(userRowObj)
+        # self.ids.widget_list.clear_widgets()
         print("Removed: " + str(userRowObj))
 
     def toggle_purge(self):
