@@ -36,7 +36,7 @@ def getFollowers(username):
 def getDFMB(*username):
     try:
         x = c.retrieve_dash()[2]
-        print(x)
+        print("DFMB: " + x)
         if x is not None:
             return (x)
     except:

@@ -45,6 +45,7 @@ class instagramManagerApp(App):
 
 Window.clearcolor = (1, 1, 1, 1)
 Window.size = (800, 550)
+Window.minimum_width, Window.minimum_height = Window.size
 
 
 class RememberScreen(Screen):
@@ -167,32 +168,60 @@ class CrawlScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
+class UserRow(GridLayout):
+    def __init__(self, obj, profile, user_id, user_name):
+        self.calling_obj = obj
+        self.profile = profile
+        self.user_id = user_id
+        self.user_name = user_name
+
+    def create_layout(self):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=self.profile))
+        layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
+                                valign="middle", text_size=(300, None)))
+        bsplit = GridLayout(rows=1)
+        unfollowButton = Button(background_normal='images/buttonbackgrounds/unfollow.png',
+                                background_down='images/buttonbackgrounds/unfollow_select.png',
+                                size_hint_x=None, width=100)
+        unfollowButton.bind(on_release=self.unfollow)
+        bsplit.add_widget(unfollowButton)
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
+                                 background_down='images/buttonbackgrounds/waitlist_select.png',
+                                 width=50, height=50, size_hint_x=None, size_hint_y=None,
+                                 valign="middle", border=(3, 3, 3, 3)))
+        layout.add_widget(bsplit)
+        return layout
+
+    def unfollow(self, *args):
+        print(self.user_name)
+        print(self)
+        rt = self.calling_obj
+        rt.remove_row(self)
+
+
+
 
 class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
     def add_row(self, profile, user_id, user_name, percent):
-        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
-        layout.add_widget(ImageButton(source=profile))
-        layout.add_widget(Label(text="@" + user_name, color=(0, 0, 0, 1), font_size=20))
-        layout.add_widget(Label(text=str(user_id), color=(0, 0, 0, 0), font_size=20))
-        bsplit = GridLayout(rows=1)
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                 background_down='images/buttonbackgrounds/unfollow_select.png', size_hint_x=None, width=100, id=str(user_id)))
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png', size_hint_x=.5, border=(3,3,3,3), id=str(user_id)))
-        layout.add_widget(bsplit)
-        self.ids.widget_list.add_widget(layout)
+        u = UserRow(self, profile, user_id, user_name)
+        l = u.create_layout()
+        self.ids.widget_list.add_widget(l)
         self.update_percent(percent)
-
-    def unfollow(self):
-        print(self)
 
     def update_percent(self, percent):
         pc = percent * 100
         p = "%.2f" % round(pc, 2)
         self.ids.pc.text = "%" + p
+
+    def remove_row(self, userRowObj):
+        print("got back")
+        # self.ids.widget_list.remove_widget(userRowObj)
+        self.ids.widget_list.clear_widgets()
+        print("Removed: " + str(userRowObj))
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
@@ -215,12 +244,14 @@ class PurgeScreen(Screen):
                 self.add_row(arr[0], arr[1], arr[2], arr[3])
                 self.update_percent(arr[3])
                 dfmb += 1
-            tot += 4
+            tot += 1
         dash = c.retrieve_dash()
         print(str(dash) + "  " + str(tot))
         dash[2] = dfmb
         print("New Dash: " + str(dash))
         c.cache_dash(dash)
+        self.ids.toggle_purge_button.text = "Start Purge"
+
 class SettingsScreen(Screen):
 
     def pull_settings(self):
