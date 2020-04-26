@@ -174,6 +174,7 @@ class UserRow(GridLayout):
         self.profile = profile
         self.user_id = user_id
         self.user_name = user_name
+        self.layout = None
 
     def create_layout(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
@@ -185,19 +186,24 @@ class UserRow(GridLayout):
                                 background_down='images/buttonbackgrounds/unfollow_select.png',
                                 size_hint_x=None, width=100)
         unfollowButton.bind(on_release=self.unfollow)
+        try:
+            print("Bound: " + str(self.user_id) + " " + str(self.user_name) + print(self))
+        except:
+            print("Bound failed: " + str(self.user_id) + " " + str(self.user_name))
         bsplit.add_widget(unfollowButton)
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
                                  background_down='images/buttonbackgrounds/waitlist_select.png',
                                  width=50, height=50, size_hint_x=None, size_hint_y=None,
                                  valign="middle", border=(3, 3, 3, 3)))
         layout.add_widget(bsplit)
+        self.layout = layout
         return layout
 
     def unfollow(self, *args):
         print(self.user_name)
-        print(self)
+        print(hex(id(self)))
         rt = self.calling_obj
-        rt.remove_row(self)
+        rt.remove_row(self.layout)
 
 
 
@@ -219,7 +225,8 @@ class PurgeScreen(Screen):
 
     def remove_row(self, userRowObj):
         print("got back")
-        self.l.ids.widget_list.remove_widget(userRowObj)
+        print(hex(id(userRowObj)))
+        self.ids.widget_list.remove_widget(userRowObj)
         # self.ids.widget_list.clear_widgets()
         print("Removed: " + str(userRowObj))
 
