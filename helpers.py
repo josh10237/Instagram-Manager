@@ -1,19 +1,6 @@
 from time import sleep
-
-from kivy.clock import Clock
-from kivy.uix.button import Button
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-
-import screens
 import cache as c
-import os.path
-from threading import Thread
-
-from instagram_private_api import (
-    Client, ClientError, ClientLoginError,
-    ClientCookieExpiredError, ClientLoginRequiredError,
-    __version__ as client_version)
+from instagram_private_api import Client, ClientError
 
 global api
 
@@ -36,7 +23,6 @@ def getFollowers(username):
 def getDFMB(*username):
     try:
         x = c.retrieve_dash()[2]
-        print("DFMB: " + x)
         if x is not None:
             return (x)
     except:
@@ -119,13 +105,11 @@ def get_following_array(username):
     user_id = get_user_id(username)
     rank_token = '2abc9200-76e4-11ea-ab20-001a7dda7113'
     a = api.user_following(user_id, rank_token)
-    print(len(a['users']))
     for val in a['users']:
         arr.append((val['username'], val['pk'], val['profile_picture']))
     return arr
 
 def dynamic_DFMB(arr, step):
-    print("Running " + str(step + 1) + " of " + str(len(arr)))
     user = arr[step]
     user_id = user[1]
     percent = (step + 1) / len(arr)
@@ -137,3 +121,6 @@ def dynamic_DFMB(arr, step):
         profile = user[2]
         print("DFMB :(   " + str(user_name))
         return [profile, user_id, user_name, percent]
+
+def unfollow(user_id):
+    api.friendships_destroy(user_id)

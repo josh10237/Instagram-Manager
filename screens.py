@@ -10,6 +10,7 @@ from kivy.uix.boxlayout import BoxLayout
 from threading import Thread
 import helpers as h
 import cache as c
+import limiter as l
 from time import sleep
 import accountgrade as ag
 from kivy.core.window import Window, Animation
@@ -25,6 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 
 SCREEN_MANAGER = ScreenManager()
+glo_arr = []
 
 
 class instagramManagerApp(App):
@@ -136,7 +138,6 @@ class DashboardScreen(Screen):
             following = arr[1]
             dfmb = arr[2]
             avglikes = arr[3]
-            print('auto')
         except:
             c.dash_set_up()
             arr = c.retrieve_dash()
@@ -144,7 +145,6 @@ class DashboardScreen(Screen):
             following = arr[1]
             dfmb = arr[2]
             avglikes = arr[3]
-            print('error- manual')
         if arg1 == 'manual':
             c.dash_set_up()
             arr = c.retrieve_dash()
@@ -152,7 +152,6 @@ class DashboardScreen(Screen):
             following = arr[1]
             dfmb = arr[2]
             avglikes = arr[3]
-            print('manual refresh')
         ratio = followers / following
         engagemnet = avglikes / followers
         self.ids.letter_grade.text = ag.letter_grade(followers, ratio, engagemnet, avglikes)
@@ -164,9 +163,32 @@ class DashboardScreen(Screen):
         self.ids.engagement.text = "%.2f" % round(engagemnet, 2)
         self.ids.refresh.y = Window.height * 0.95 - 40
 
+
+class UnfollowButton(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        super(UnfollowButton, self).__init__(**kwargs)
+        self.bind(on_release=self.unfollow)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj
+
+    def unfollow(self, instance):
+        if l.canUnfollow:
+            rt = self.calling_obj
+            lt = self.userRowObj.layout
+            id = self.userRowObj.user_id
+            rt.remove_row(lt)
+            print(id)
+            h.unfollow(id)
+        else:
+            self.ids.pc.text = "Cannot Unfollow- Hit Daily Limit"
+            self.ids.pc.bold = True
+            self.ids.pc.color = (1, .2, .2, 1)
+
+
 class CrawlScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
+
 
 class UserRow(GridLayout):
     def __init__(self, obj, profile, user_id, user_name):
@@ -177,19 +199,17 @@ class UserRow(GridLayout):
         self.layout = None
 
     def create_layout(self):
+        global glo_arr
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
                                 valign="middle", text_size=(300, None)))
         bsplit = GridLayout(rows=1)
-        unfollowButton = Button(background_normal='images/buttonbackgrounds/unfollow.png',
-                                background_down='images/buttonbackgrounds/unfollow_select.png',
-                                size_hint_x=None, width=100)
-        unfollowButton.bind(on_release=self.unfollow)
-        try:
-            print("Bound: " + str(self.user_id) + " " + str(self.user_name) + print(self))
-        except:
-            print("Bound failed: " + str(self.user_id) + " " + str(self.user_name))
+        unfollowButton = UnfollowButton(self.calling_obj, self,
+                                        background_normal='images/buttonbackgrounds/unfollow.png',
+                                        background_down='images/buttonbackgrounds/unfollow_select.png',
+                                        size_hint_x=None, width=100)
+        glo_arr.append(unfollowButton)
         bsplit.add_widget(unfollowButton)
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
                                  background_down='images/buttonbackgrounds/waitlist_select.png',
@@ -199,20 +219,13 @@ class UserRow(GridLayout):
         self.layout = layout
         return layout
 
-    def unfollow(self, *args):
-        print(self.user_name)
-        print(hex(id(self)))
-        rt = self.calling_obj
-        rt.remove_row(self.layout)
-
-
-
 
 class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
     def add_row(self, profile, user_id, user_name, percent):
+        global glo_arr
         u = UserRow(self, profile, user_id, user_name)
         l = u.create_layout()
         self.ids.widget_list.add_widget(l)
@@ -224,16 +237,11 @@ class PurgeScreen(Screen):
         self.ids.pc.text = "%" + p
 
     def remove_row(self, userRowObj):
-        print("got back")
-        print(hex(id(userRowObj)))
         self.ids.widget_list.remove_widget(userRowObj)
-        # self.ids.widget_list.clear_widgets()
-        print("Removed: " + str(userRowObj))
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
             self.ids.widget_list.clear_widgets()
-            print('started call')
             self.ids.toggle_purge_button.text = "Running..."
             x = threading.Thread(target=self.purgeThread, daemon=True)
             x.start()
@@ -241,23 +249,24 @@ class PurgeScreen(Screen):
     def purgeThread(self):
         tot = 0
         dfmb = 0
+        self.ids.pc.bold = False
+        self.ids.pc.color = (1, 1, 1, 1)
         following_arr = h.get_following_array(c.retrieve_log_in('username'))
         while tot < len(following_arr):
             arr = h.dynamic_DFMB(following_arr, tot)
             if arr[0] == 'nil':
                 self.update_percent(arr[1])
             else:
-                #profile, user_id, username, percent
+                # profile, user_id, username, percent
                 self.add_row(arr[0], arr[1], arr[2], arr[3])
                 self.update_percent(arr[3])
                 dfmb += 1
             tot += 1
         dash = c.retrieve_dash()
-        print(str(dash) + "  " + str(tot))
         dash[2] = dfmb
-        print("New Dash: " + str(dash))
         c.cache_dash(dash)
         self.ids.toggle_purge_button.text = "Start Purge"
+
 
 class SettingsScreen(Screen):
 
@@ -284,7 +293,6 @@ class SettingsScreen(Screen):
             c.cache['whitelist_legnth'] = '10'
             c.cache['speed'] = 'slow'
             c.cache['daily_limit'] = '100'
-            print("recursive call")
             self.pull_settings()
         if mutual_friends == '10+':
             self.tenplus()

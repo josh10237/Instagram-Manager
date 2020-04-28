@@ -21,11 +21,9 @@ def retrieve_profile_pic():
 def cache_dash(arr):
     # [followers, following, dfmb, avglikes]
     cache['dash'] = arr
-    print("cache dash after: " + str(cache['dash']))
 
 def retrieve_dash():
     # arr[0] = followers, arr[1] = following, arr[2] = dfmb, arr[3] = avglikes
-    print("retrive dash: " + str(cache['dash']))
     return cache['dash']
 
 def dash_set_up():
