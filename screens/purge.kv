@@ -1,5 +1,6 @@
 <PurgeScreen>:
     name: 'purge'
+    on_enter: root.pullSettings()
     FloatLayout:
         size_hint: None, None
 
@@ -63,7 +64,7 @@
             background_normal: 'images/buttonbackgrounds/up.png'
             background_down: 'images/buttonbackgrounds/down.png'
             border: 20,40,20,40
-            on_release:
+            on_release: root.toggle_auto()
 
         ScrollView:
             size_hint: (None, None)
@@ -79,6 +80,14 @@
                 cols: 1
                 size_hint_y: None
                 height: sum(x.height for x in self.children)
+
+        Label:
+            id: auto_timer
+            color: (0, 0, 0, 1)
+            x: (root.width * .62)-(self.width/2)+60
+            y: root.height * 0.85 - 50
+            font_size: 15
+            bold: True
 
         Label:
             text: "0%"

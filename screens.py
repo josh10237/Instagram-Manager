@@ -24,10 +24,11 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.anchorlayout import AnchorLayout
 from concurrent.futures import ThreadPoolExecutor
 import threading
+from random import randint
+import time
 
 SCREEN_MANAGER = ScreenManager()
-glo_arr = []
-
+runningPurgeAuto = False
 
 class instagramManagerApp(App):
     def build(self):
@@ -42,6 +43,7 @@ class instagramManagerApp(App):
             SCREEN_MANAGER.current = 'remember'
         else:
             SCREEN_MANAGER.current = 'newUser'
+        l.canAuto('cannot')
         return SCREEN_MANAGER
 
 
@@ -172,17 +174,17 @@ class UnfollowButton(Button):
         self.userRowObj = userRowObj
 
     def unfollow(self, instance):
-        if l.canUnfollow:
-            rt = self.calling_obj
+        m = l.canUnfollow()
+        print(m)
+        rt = self.calling_obj
+        if m == True:
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
             rt.remove_row(lt)
             print(id)
             h.unfollow(id)
         else:
-            self.ids.pc.text = "Cannot Unfollow- Hit Daily Limit"
-            self.ids.pc.bold = True
-            self.ids.pc.color = (1, .2, .2, 1)
+            rt.unfollow_error(m)
 
 
 class CrawlScreen(Screen):
@@ -199,7 +201,6 @@ class UserRow(GridLayout):
         self.layout = None
 
     def create_layout(self):
-        global glo_arr
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
@@ -209,7 +210,6 @@ class UserRow(GridLayout):
                                         background_normal='images/buttonbackgrounds/unfollow.png',
                                         background_down='images/buttonbackgrounds/unfollow_select.png',
                                         size_hint_x=None, width=100)
-        glo_arr.append(unfollowButton)
         bsplit.add_widget(unfollowButton)
         bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
                                  background_down='images/buttonbackgrounds/waitlist_select.png',
@@ -225,7 +225,6 @@ class PurgeScreen(Screen):
         SCREEN_MANAGER.current = 'dashboard'
 
     def add_row(self, profile, user_id, user_name, percent):
-        global glo_arr
         u = UserRow(self, profile, user_id, user_name)
         l = u.create_layout()
         self.ids.widget_list.add_widget(l)
@@ -239,6 +238,16 @@ class PurgeScreen(Screen):
     def remove_row(self, userRowObj):
         self.ids.widget_list.remove_widget(userRowObj)
 
+    def unfollow_error(self, m):
+        self.ids.pc.color = (1, .2, .2, 1)
+        self.ids.pc.bold = True
+        if m == 'day':
+            self.ids.pc.text = 'Cannot Unfollow- Reached Daily Limit'
+        elif m == 'hour':
+            self.ids.pc.text = 'Cannot Unfollow- Reached Hourly Limit'
+        elif m == '15min':
+            self.ids.pc.text = 'Cannot Unfollow- Reached 15 minute Limit'
+
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
             self.ids.widget_list.clear_widgets()
@@ -250,7 +259,7 @@ class PurgeScreen(Screen):
         tot = 0
         dfmb = 0
         self.ids.pc.bold = False
-        self.ids.pc.color = (1, 1, 1, 1)
+        self.ids.pc.color = (0, 0, 0, 1)
         following_arr = h.get_following_array(c.retrieve_log_in('username'))
         while tot < len(following_arr):
             arr = h.dynamic_DFMB(following_arr, tot)
@@ -265,7 +274,52 @@ class PurgeScreen(Screen):
         dash = c.retrieve_dash()
         dash[2] = dfmb
         c.cache_dash(dash)
+        l.canAuto('can')
+        if self.ids.set_auto_button.text == "Turn Off Automatic":
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.toggle_auto()
         self.ids.toggle_purge_button.text = "Start Purge"
+
+    def pullSettings(self):
+        if c.cache['purge_control'] == 'auto':
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.toggle_auto()
+        else:
+            self.ids.set_auto_button.text = "Turn On Automatic"
+
+    def toggle_auto(self):
+        if self.ids.set_auto_button.text == "Turn On Automatic":
+            self.ids.set_auto_button.text = "Turn Off Automatic"
+            c.cache['purge_control'] = 'auto'
+            x = threading.Thread(target=self.unfollowThread, daemon=True)
+            x.start()
+        else:
+            print("tog to turn off")
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            c.cache['purge_control'] = 'manual'
+
+    def unfollowThread(self):
+        global runningPurgeAuto
+        if runningPurgeAuto:
+            return
+        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAuto('check') == True:
+            runningPurgeAuto = True
+            if c.cache['speed'] == 'slow':
+                t = randint(60, 70)
+            elif c.cache['speed'] == 'med':
+                t = randint(30, 35)
+            elif c.cache['speed'] == 'med':
+                t = randint(5, 10)
+            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
+                mins, secs = divmod(t, 60)
+                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+                time.sleep(1)
+                t -= 1
+            print("done")
+        self.ids.auto_timer.text = ""
+        runningPurgeAuto = False
+
+
 
 
 class SettingsScreen(Screen):
