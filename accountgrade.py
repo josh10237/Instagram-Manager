@@ -41,7 +41,7 @@ def calculate_grade(followers, ratio, engagement, avglikes):
     g3 = calc_engagment(engagement, g1)
     g4 = calc_ratio(ratio)
     c.cache_grade_tips([g1, g2, g3, g4])
-    return (g1 + g2 + g3 + g4) / 3.5
+    return (g1 + g2 + g3 + g4) / 3
 
 
 def calc_followers(followers):

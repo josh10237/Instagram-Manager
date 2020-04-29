@@ -30,6 +30,7 @@ import time
 SCREEN_MANAGER = ScreenManager()
 runningPurgeAuto = False
 
+
 class instagramManagerApp(App):
     def build(self):
         username = ''
@@ -43,7 +44,7 @@ class instagramManagerApp(App):
             SCREEN_MANAGER.current = 'remember'
         else:
             SCREEN_MANAGER.current = 'newUser'
-        l.canAuto('cannot')
+        l.canAutoPurge('cannot')
         return SCREEN_MANAGER
 
 
@@ -175,13 +176,13 @@ class UnfollowButton(Button):
 
     def unfollow(self, instance):
         m = l.canUnfollow()
-        print(m)
         rt = self.calling_obj
+        # LEAVE AS "== True"   DO NOT SIMPLIFY THE EXPRESSION
         if m == True:
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
+            l.autoPurge('removeManual', lt)
             rt.remove_row(lt)
-            print(id)
             h.unfollow(id)
         else:
             rt.unfollow_error(m)
@@ -226,8 +227,9 @@ class PurgeScreen(Screen):
 
     def add_row(self, profile, user_id, user_name, percent):
         u = UserRow(self, profile, user_id, user_name)
-        l = u.create_layout()
-        self.ids.widget_list.add_widget(l)
+        g = u.create_layout()
+        l.autoPurge('add', (g, u))
+        self.ids.widget_list.add_widget(g)
         self.update_percent(percent)
 
     def update_percent(self, percent):
@@ -235,18 +237,15 @@ class PurgeScreen(Screen):
         p = "%.2f" % round(pc, 2)
         self.ids.pc.text = "%" + p
 
-    def remove_row(self, userRowObj):
-        self.ids.widget_list.remove_widget(userRowObj)
+    def remove_row(self, lay):
+        self.ids.widget_list.remove_widget(lay)
+        print("Did it: ")
+        print(lay)
 
     def unfollow_error(self, m):
         self.ids.pc.color = (1, .2, .2, 1)
         self.ids.pc.bold = True
-        if m == 'day':
-            self.ids.pc.text = 'Cannot Unfollow- Reached Daily Limit'
-        elif m == 'hour':
-            self.ids.pc.text = 'Cannot Unfollow- Reached Hourly Limit'
-        elif m == '15min':
-            self.ids.pc.text = 'Cannot Unfollow- Reached 15 minute Limit'
+        self.ids.pc.text = m
 
     def toggle_purge(self):
         if self.ids.toggle_purge_button.text == "Start Purge":
@@ -274,7 +273,7 @@ class PurgeScreen(Screen):
         dash = c.retrieve_dash()
         dash[2] = dfmb
         c.cache_dash(dash)
-        l.canAuto('can')
+        l.canAutoPurge('can')
         if self.ids.set_auto_button.text == "Turn Off Automatic":
             self.ids.set_auto_button.text = "Turn On Automatic"
             self.toggle_auto()
@@ -294,7 +293,6 @@ class PurgeScreen(Screen):
             x = threading.Thread(target=self.unfollowThread, daemon=True)
             x.start()
         else:
-            print("tog to turn off")
             self.ids.set_auto_button.text = "Turn On Automatic"
             c.cache['purge_control'] = 'manual'
 
@@ -302,13 +300,13 @@ class PurgeScreen(Screen):
         global runningPurgeAuto
         if runningPurgeAuto:
             return
-        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAuto('check') == True:
+        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
             runningPurgeAuto = True
             if c.cache['speed'] == 'slow':
                 t = randint(60, 70)
             elif c.cache['speed'] == 'med':
                 t = randint(30, 35)
-            elif c.cache['speed'] == 'med':
+            elif c.cache['speed'] == 'fast':
                 t = randint(5, 10)
             while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
                 mins, secs = divmod(t, 60)
@@ -316,10 +314,24 @@ class PurgeScreen(Screen):
                 time.sleep(1)
                 t -= 1
             print("done")
+            tmp = l.autoPurge('remove')
+            if tmp == 'error':
+                return
+            else:
+                tup = tmp
+                lay = tup[0]
+                obj = tup[1]
+                print(obj)
+                print(obj.id)
+            checker = l.canAutoPurge('check')
+            if checker == True:
+                self.remove_row(lay)
+                #h.unfollow(obj.id)
+            else:
+                self.unfollow_error(checker)
+                return
         self.ids.auto_timer.text = ""
         runningPurgeAuto = False
-
-
 
 
 class SettingsScreen(Screen):

@@ -5,6 +5,7 @@ FIFTEEN_MINUTES = 900
 HOUR = 3600
 DAY = 86400
 DAILY_LIMIT = int(c.cache['daily_limit'])
+purgelist = []
 
 def canUnfollow():
     try:
@@ -17,11 +18,11 @@ def canUnfollow():
                         print("checking 15")
                         return canUnfollowCheck1()
                     except:
-                        return '15min'
+                        return 'Cannot Unfollow- Reached 15 Minute Limit'
             except:
-                return 'hour'
+                return 'Cannot Unfollow- Reached Hourly Limit'
     except:
-        return 'day'
+        return 'Cannot Unfollow- Reached Daily Limit'
 
 
 @limits(calls=30, period=FIFTEEN_MINUTES)
@@ -45,11 +46,11 @@ def canFollow():
                     try:
                         return canFollowCheck1()
                     except:
-                        return '15min'
+                        return 'Cannot Follow- Reached 15 Minute Limit'
             except:
-                return 'hour'
+                return 'Cannot Follow- Reached Hourly Limit'
     except:
-        return 'day'
+        return 'Cannot Follow- Reached Daily Limit'
 
 
 @limits(calls=30, period=FIFTEEN_MINUTES)
@@ -66,7 +67,7 @@ def canFollowCheck2():
 def canFollowCheck3():
     return True
 
-def canAuto(param):
+def canAutoPurge(param):
     global go
     if param == 'can':
         go = True
@@ -76,3 +77,23 @@ def canAuto(param):
         return go
     else:
         return 'error'
+
+def autoPurge(action, *v):
+    global purgelist
+    for val in v:
+        value = val
+    if action == 'add':
+        purgelist.append(value)
+        print(purgelist)
+    elif action == 'len':
+        return len(purgelist)
+    elif action == 'remove':
+        try:
+            x = purgelist[0]
+            print(x)
+            purgelist.pop(0)
+            return x
+        except:
+            return 'error'
+    elif action == 'removeManual':
+        purgelist.remove(value)
