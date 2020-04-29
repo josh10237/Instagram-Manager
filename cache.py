@@ -26,6 +26,12 @@ def retrieve_dash():
     # arr[0] = followers, arr[1] = following, arr[2] = dfmb, arr[3] = avglikes
     return cache['dash']
 
+def cache_similar(arr):
+    cache['dash'] = arr
+
+def retrieve_similar():
+    return cache['dash']
+
 def dash_set_up():
     username = retrieve_log_in('username')
     followers = h.getFollowers(username)

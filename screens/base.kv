@@ -1,0 +1,48 @@
+<BaseScreen>:
+    name: 'base'
+    on_enter: root.pullCache()
+    FloatLayout:
+        size_hint: None, None
+
+        Button:
+            id: backButton
+            x: (root.width * .025)-25
+            y: root.height * 0.95 - 25
+            size_hint: .6, .6
+            border: 3,3,3,3
+            background_normal: 'images/buttonbackgrounds/backbutton.png'
+            background_down: 'images/buttonbackgrounds/backbutton_select.png'
+            on_release:
+                root.manager.transition.direction = 'right'
+                root.backButton()
+
+        Label:
+            text: "Select Base Users"
+            color: (0, 0, 0, 1)
+            x: (root.width * .5)-45
+            y: root.height * 0.95 - 50
+            font_size: 40
+            bold: True
+
+        Label:
+            text: "Try to choose users similar to you\nSelect users with similar demographics and similar follower counts"
+            color: (0, 0, 0, .7)
+            halign: 'center'
+            x: (root.width * .5)-(self.width * .5)
+            y: root.height * 0.90 - 75
+            font_size: 12
+
+        ScrollView:
+            size_hint: (None, None)
+            do_scroll_x: False
+            scroll_distance: 50
+            bar_width: 4
+            bar_inactive_color: (.7, .7, .7, .4)
+            size: (root.width * .75, root.height * .65)
+            x: (root.width * .5) - (self.width/2)
+            y: root.height * 0.2
+            GridLayout:
+                id: widget_list
+                cols: 1
+                size_hint_y: None
+                height: sum(x.height for x in self.children)

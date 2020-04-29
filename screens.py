@@ -29,6 +29,7 @@ import time
 
 SCREEN_MANAGER = ScreenManager()
 runningPurgeAuto = False
+runningCrawlAuto = False
 
 
 class instagramManagerApp(App):
@@ -101,6 +102,9 @@ class DashboardScreen(Screen):
 
     def purgeScreen(self):
         SCREEN_MANAGER.current = 'purge'
+
+    def crawlScreen(self):
+        SCREEN_MANAGER.current = 'crawl'
 
     def AGbreakdown(self):
         if self.ids.followers_grade.text != "-":
@@ -181,7 +185,7 @@ class UnfollowButton(Button):
         if m == True:
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
-            l.autoPurge('removeManual', lt)
+            l.autoPurge('removeManual', (lt,id))
             rt.remove_row(lt)
             h.unfollow(id)
         else:
@@ -192,6 +196,111 @@ class CrawlScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
+    def base(self):
+        SCREEN_MANAGER.current = 'base'
+
+    # def toggle_crawl(self):
+    #     if self.ids.toggle_crawl_button.text == "Start Crawl":
+    #         self.ids.widget_list.clear_widgets()
+    #         self.ids.toggle_crawl_button.text = "Running..."
+    #         x = threading.Thread(target=self.crawlThread, daemon=True)
+    #         x.start()
+    #
+    # def crawlThread(self):
+    #     tot = 0
+    #     dfmb = 0
+    #     self.ids.pc.bold = False
+    #     self.ids.pc.color = (0, 0, 0, 1)
+    #     similar_arr = c.retrieve_similar()
+    #     while tot < len(following_arr):
+    #         arr = h.dynamic_DFMB(following_arr, tot)
+    #         if arr[0] == 'nil':
+    #             self.update_percent(arr[1])
+    #         else:
+    #             # profile, user_id, username, percent
+    #             self.add_row(arr[0], arr[1], arr[2], arr[3])
+    #             self.update_percent(arr[3])
+    #             dfmb += 1
+    #         tot += 1
+    #     dash = c.retrieve_dash()
+    #     dash[2] = dfmb
+    #     c.cache_dash(dash)
+    #     l.canAutoPurge('can')
+    #     if self.ids.set_auto_button.text == "Turn Off Automatic":
+    #         self.ids.set_auto_button.text = "Turn On Automatic"
+    #         self.toggle_auto()
+    #     self.ids.toggle_purge_button.text = "Start Purge"
+    #
+    def pullSettings(self):
+        if c.cache['crawl_control'] == 'auto':
+            self.ids.set_auto_button.text = "Turn Off Automatic"
+            # self.toggle_auto()
+        else:
+            self.ids.set_auto_button.text = "Turn On Automatic"
+    #
+    # def toggle_auto(self):
+    #     if self.ids.set_auto_button.text == "Turn On Automatic":
+    #         self.ids.set_auto_button.text = "Turn Off Automatic"
+    #         c.cache['crawl_control'] = 'auto'
+    #         # x = threading.Thread(target=self.followThread, daemon=True)
+    #         # x.start()
+    #     else:
+    #         self.ids.set_auto_button.text = "Turn On Automatic"
+    #         c.cache['crawl_control'] = 'manual'
+    #
+    # def followThread(self):
+    #     global runningCrawlAuto
+    #     if runningCrawlAuto:
+    #         return
+    #     while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
+    #         runningCrawlAuto = True
+    #         if c.cache['speed'] == 'slow':
+    #             t = randint(60, 70)
+    #         elif c.cache['speed'] == 'med':
+    #             t = randint(30, 35)
+    #         elif c.cache['speed'] == 'fast':
+    #             t = randint(5, 10)
+    #         while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
+    #             mins, secs = divmod(t, 60)
+    #             self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+    #             time.sleep(1)
+    #             t -= 1
+    #         print("done")
+    #         tmp = l.autoPurge('remove')
+    #         if tmp == 'error':
+    #             return
+    #         else:
+    #             tup = tmp
+    #             lay = tup[0]
+    #             id = tup[1]
+    #         checker = l.canAutoPurge('check')
+    #         if checker == True:
+    #             self.remove_row(lay)
+    #             h.unfollow(id)
+    #         else:
+    #             self.unfollow_error(checker)
+    #             return
+    #     self.ids.auto_timer.text = ""
+    #     runningCrawlAuto = False
+
+
+class BaseScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'crawl'
+
+    def pullCache(self):
+        print('pulled')
+        arr = c.retrieve_similar()
+        for user in arr:
+            # profile, user_idm, user_name
+            self.add_row(user[0], user[1], user[2])
+        self.add_row('empty', None, None)
+
+    def add_row(self, profile, user_id, user_name):
+        u = UserRow(self, profile, user_id, user_name)
+        g = u.create_layout_base()
+        self.ids.widget_list.add_widget(g)
+
 
 class UserRow(GridLayout):
     def __init__(self, obj, profile, user_id, user_name):
@@ -201,7 +310,7 @@ class UserRow(GridLayout):
         self.user_name = user_name
         self.layout = None
 
-    def create_layout(self):
+    def create_layout_purge(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
@@ -220,6 +329,21 @@ class UserRow(GridLayout):
         self.layout = layout
         return layout
 
+    def create_layout_base(self):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=self.profile))
+        layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
+                                valign="middle", text_size=(300, None)))
+        bsplit = GridLayout(rows=1)
+        removeButton = UnfollowButton(self.calling_obj, self,
+                                        background_normal='images/buttonbackgrounds/unfollow.png',
+                                        background_down='images/buttonbackgrounds/unfollow_select.png',
+                                        size_hint_x=None, width=100)
+        bsplit.add_widget(removeButton)
+        layout.add_widget(bsplit)
+        self.layout = layout
+        return layout
+
 
 class PurgeScreen(Screen):
     def backButton(self):
@@ -227,8 +351,8 @@ class PurgeScreen(Screen):
 
     def add_row(self, profile, user_id, user_name, percent):
         u = UserRow(self, profile, user_id, user_name)
-        g = u.create_layout()
-        l.autoPurge('add', (g, u))
+        g = u.create_layout_purge()
+        l.autoPurge('add', (g, user_id))
         self.ids.widget_list.add_widget(g)
         self.update_percent(percent)
 
@@ -320,13 +444,11 @@ class PurgeScreen(Screen):
             else:
                 tup = tmp
                 lay = tup[0]
-                obj = tup[1]
-                print(obj)
-                print(obj.id)
+                id = tup[1]
             checker = l.canAutoPurge('check')
             if checker == True:
                 self.remove_row(lay)
-                #h.unfollow(obj.id)
+                h.unfollow(id)
             else:
                 self.unfollow_error(checker)
                 return
@@ -553,10 +675,12 @@ Builder.load_file('screens/login.kv')
 Builder.load_file('screens/dashboard.kv')
 Builder.load_file('screens/settings.kv')
 Builder.load_file('screens/purge.kv')
-# Builder.load_file('screens/crawl.kv')
+Builder.load_file('screens/crawl.kv')
+Builder.load_file('screens/base.kv')
 SCREEN_MANAGER.add_widget(SettingsScreen(name='settings'))
 SCREEN_MANAGER.add_widget(RememberScreen(name='remember'))
-# SCREEN_MANAGER.add_widget(CrawlScreen(name='crawl'))
+SCREEN_MANAGER.add_widget(CrawlScreen(name='crawl'))
 SCREEN_MANAGER.add_widget(PurgeScreen(name='purge'))
+SCREEN_MANAGER.add_widget(BaseScreen(name='base'))
 SCREEN_MANAGER.add_widget(NewUserScreen(name='newUser'))
 SCREEN_MANAGER.add_widget(DashboardScreen(name='dashboard'))

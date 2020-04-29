@@ -78,6 +78,17 @@ def canAutoPurge(param):
     else:
         return 'error'
 
+def canAutoCrawl(param):
+    global go
+    if param == 'can':
+        go = True
+    elif param == 'cannot':
+        go = False
+    elif param == 'check':
+        return go
+    else:
+        return 'error'
+
 def autoPurge(action, *v):
     global purgelist
     for val in v:
@@ -96,4 +107,5 @@ def autoPurge(action, *v):
         except:
             return 'error'
     elif action == 'removeManual':
+        print(value)
         purgelist.remove(value)
