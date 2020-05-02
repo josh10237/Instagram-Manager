@@ -202,7 +202,6 @@ class RemoveButton(Button):
     def remove(self, instance):
         rt = self.calling_obj
         lt = self.userRowObj.layout
-        print(self.userRowObj.user_id)
         rt.remove_row(lt, self.userRowObj.user_id)
 
 
@@ -227,38 +226,57 @@ class CrawlScreen(Screen):
     def base(self):
         SCREEN_MANAGER.current = 'base'
 
-    # def toggle_crawl(self):
-    #     if self.ids.toggle_crawl_button.text == "Start Crawl":
-    #         self.ids.widget_list.clear_widgets()
-    #         self.ids.toggle_crawl_button.text = "Running..."
-    #         x = threading.Thread(target=self.crawlThread, daemon=True)
-    #         x.start()
-    #
-    # def crawlThread(self):
-    #     tot = 0
-    #     dfmb = 0
-    #     self.ids.pc.bold = False
-    #     self.ids.pc.color = (0, 0, 0, 1)
-    #     similar_arr = c.retrieve_similar()
-    #     while tot < len(following_arr):
-    #         arr = h.dynamic_DFMB(following_arr, tot)
-    #         if arr[0] == 'nil':
-    #             self.update_percent(arr[1])
-    #         else:
-    #             # profile, user_id, username, percent
-    #             self.add_row(arr[0], arr[1], arr[2], arr[3])
-    #             self.update_percent(arr[3])
-    #             dfmb += 1
-    #         tot += 1
-    #     dash = c.retrieve_dash()
-    #     dash[2] = dfmb
-    #     c.cache_dash(dash)
-    #     l.canAutoPurge('can')
-    #     if self.ids.set_auto_button.text == "Turn Off Automatic":
-    #         self.ids.set_auto_button.text = "Turn On Automatic"
-    #         self.toggle_auto()
-    #     self.ids.toggle_purge_button.text = "Start Purge"
-    #
+    def toggle_crawl(self):
+        if self.ids.toggle_crawl_button.text == "Start Crawl":
+            self.ids.widget_list.clear_widgets()
+            self.ids.toggle_crawl_button.text = "Running..."
+            x = threading.Thread(target=self.crawlThread, daemon=True)
+            x.start()
+
+    def crawlThread(self):
+        count = 0
+        self.ids.pc.bold = False
+        self.ids.pc.color = (0, 0, 0, 1)
+        self.ids.pc.text = "0%"
+        try:
+            sim = c.retrieve_similar()[0][2]
+        except:
+            self.ids.pc.bold = True
+            self.ids.pc.color = (1, .2, .2, .8)
+            self.ids.pc.text = "No Base Users- Click Select Base Users"
+            self.ids.toggle_crawl_button.text = "Start Crawl"
+            return
+        try:
+            media_id = h.get_last_post_id(sim)
+        except IndexError:
+            self.ids.pc.bold = True
+            self.ids.pc.color = (1, .2, .2, .8)
+            self.ids.pc.text = "Base User Has No Posts- Remove The Top Base User And Re-run"
+            self.ids.toggle_crawl_button.text = "Start Crawl"
+            return
+        tot = len(h.get_likers_post(media_id))
+        while count < tot:
+            arr = h.get_likers_post(media_id)[count]
+            user_name = arr['username']
+            profile = arr['profile_pic_url']
+            user_id = arr['pk']
+            count += 1
+            u = UserRow(self, profile, user_id, user_name) #check settings first
+            g = u.create_layout_crawl()
+            self.update_percent(count/tot)
+            self.ids.widget_list.add_widget(g)
+        self.ids.toggle_crawl_button.text = "Start Crawl"
+        # l.canAutoCrawl('can')
+        # if self.ids.set_auto_button.text == "Turn Off Automatic":
+        #     self.ids.set_auto_button.text = "Turn On Automatic"
+        #     self.toggle_auto()
+        # self.ids.toggle_purge_button.text = "Start Purge"
+
+    def update_percent(self, percent):
+        pc = percent * 100
+        p = "%.2f" % round(pc, 2)
+        self.ids.pc.text = "%" + p
+
     def pullSettings(self):
         if c.cache['crawl_control'] == 'auto':
             self.ids.set_auto_button.text = "Turn Off Automatic"
@@ -293,7 +311,6 @@ class CrawlScreen(Screen):
     #             self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
     #             time.sleep(1)
     #             t -= 1
-    #         print("done")
     #         tmp = l.autoPurge('remove')
     #         if tmp == 'error':
     #             return
@@ -318,11 +335,9 @@ class BaseScreen(Screen):
 
     # called on enter
     def pullCache(self):
-        print('pulled')
         self.ids.widget_list.clear_widgets()
         try:
             arr = c.retrieve_similar()
-            print(arr)
             for user in arr:
                 # profile, user_id, user_name
                 self.add_row(user[0], user[1], user[2])
@@ -345,10 +360,7 @@ class BaseScreen(Screen):
         sim_arr = c.retrieve_similar()
         if sim_arr == None:
             sim_arr = []
-            print("none")
-        print(user_name)
         sim_arr.append([profile, user_id, user_name])
-        print(sim_arr)
         c.cache_similar(sim_arr)
 
     def add_row(self, profile, user_id, user_name):
@@ -400,6 +412,25 @@ class UserRow(GridLayout):
         self.layout = layout
         return layout
 
+    def create_layout_crawl(self):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=self.profile))
+        layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
+                                valign="middle", text_size=(300, None)))
+        bsplit = GridLayout(rows=1)
+        unfollowButton = UnfollowButton(self.calling_obj, self,
+                                        background_normal='images/buttonbackgrounds/unfollow.png',
+                                        background_down='images/buttonbackgrounds/unfollow_select.png',
+                                        size_hint_x=None, width=100)
+        bsplit.add_widget(unfollowButton)
+        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
+                                 background_down='images/buttonbackgrounds/waitlist_select.png',
+                                 width=50, height=50, size_hint_x=None, size_hint_y=None,
+                                 valign="middle", border=(3, 3, 3, 3)))
+        layout.add_widget(bsplit)
+        self.layout = layout
+        return layout
+
     def create_layout_base(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
@@ -415,7 +446,6 @@ class UserRow(GridLayout):
 
     def create_layout_base_empty(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
-        layout.add_widget(Image(source='images/blankprofile.png', size_hint=(None, None), height=60, width=60))
         layout.add_widget(Label(text="spacer", color=(0, 0, 0, 0), halign="left",
                                 valign="middle", text_size=(300, None)))
         self.addInput = TextInput(multiline=False, width=300, height=30, size_hint=(None, None),
@@ -531,7 +561,6 @@ class PurgeScreen(Screen):
                 self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
                 time.sleep(1)
                 t -= 1
-            print("done")
             tmp = l.autoPurge('remove')
             if tmp == 'error':
                 return
@@ -554,7 +583,10 @@ class SettingsScreen(Screen):
 
     def pull_settings(self):
         try:  # pull from cache
-            mutual_friends = c.cache['mutual_friends']
+            print("Pulled Cache:")
+            print(c.cache['public'])
+            public = c.cache['public']
+            private = c.cache['private']
             crawl_control = c.cache['crawl_control']
             purge_control = c.cache['purge_control']
             ratio_vl = c.cache['ratio_vl']
@@ -565,7 +597,8 @@ class SettingsScreen(Screen):
             speed = c.cache['speed']
             daily_limit = c.cache['daily_limit']
         except:  # cache defualts and re-run
-            c.cache['mutual_friends'] = '30+'
+            c.cache['public'] = True
+            c.cache['private'] = True
             c.cache['crawl_control'] = 'manual'
             c.cache['purge_control'] = 'manual'
             c.cache['ratio_vl'] = True
@@ -576,14 +609,18 @@ class SettingsScreen(Screen):
             c.cache['speed'] = 'slow'
             c.cache['daily_limit'] = '100'
             self.pull_settings()
-        if mutual_friends == '10+':
-            self.tenplus()
-        elif mutual_friends == '30+':
-            self.thirtyplus()
-        elif mutual_friends == '50+':
-            self.fiftyplus()
-        elif mutual_friends == '100+':
-            self.thirtyplus()
+        if public:
+            self.ids.public.background_normal = 'images/settingbackgrounds/public.png'
+            self.public()
+        elif not public:
+            self.ids.public.background_normal = 'images/settingbackgrounds/public_select.png'
+            self.public()
+        if private:
+            self.ids.private.background_normal = 'images/settingbackgrounds/private.png'
+            self.private()
+        elif not private:
+            self.ids.private.background_normal = 'images/settingbackgrounds/private_select.png'
+            self.private()
         if crawl_control == 'manual':
             self.manual('crawl')
         elif crawl_control == 'auto':
@@ -593,21 +630,29 @@ class SettingsScreen(Screen):
         elif purge_control == 'auto':
             self.automatic('purge')
         if ratio_vl:
-            self.ids.verylow.background_normal = 'images/settingbackgrounds/verylow_select.png'
-        else:
             self.ids.verylow.background_normal = 'images/settingbackgrounds/verylow.png'
+            self.verylow()
+        else:
+            self.ids.verylow.background_normal = 'images/settingbackgrounds/verylow_select.png'
+            self.verylow()
         if ratio_l:
-            self.ids.low.background_normal = 'images/settingbackgrounds/low_select.png'
-        else:
             self.ids.low.background_normal = 'images/settingbackgrounds/low.png'
+            self.low()
+        else:
+            self.ids.low.background_normal = 'images/settingbackgrounds/low_select.png'
+            self.low()
         if ratio_h:
-            self.ids.high.background_normal = 'images/settingbackgrounds/high_select.png'
-        else:
             self.ids.high.background_normal = 'images/settingbackgrounds/high.png'
-        if ratio_vh:
-            self.ids.veryhigh.background_normal = 'images/settingbackgrounds/veryhigh_select.png'
+            self.high()
         else:
+            self.ids.high.background_normal = 'images/settingbackgrounds/high_select.png'
+            self.high()
+        if ratio_vh:
             self.ids.veryhigh.background_normal = 'images/settingbackgrounds/veryhigh.png'
+            self.veryhigh()
+        else:
+            self.ids.veryhigh.background_normal = 'images/settingbackgrounds/veryhigh_select.png'
+            self.veryhigh()
         if whitelist_legnth == '5':
             self.fivedays()
         elif whitelist_legnth == '10':
@@ -630,33 +675,22 @@ class SettingsScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
 
-    def tenplus(self):
-        self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+_select.png'
-        self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
-        self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
-        self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+.png'
-        c.cache['mutual_friends'] = '10+'
+    def private(self):
+        if self.ids.private.background_normal == 'images/settingbackgrounds/private.png':
+            self.ids.private.background_normal = 'images/settingbackgrounds/private_select.png'
+            c.cache['private'] = True
+        else:
+            self.ids.private.background_normal = 'images/settingbackgrounds/private.png'
+            c.cache['private'] = False
 
-    def thirtyplus(self):
-        self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+.png'
-        self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+_select.png'
-        self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
-        self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+.png'
-        c.cache['mutual_friends'] = '30+'
+    def public(self):
+        if self.ids.public.background_normal == 'images/settingbackgrounds/public.png':
+            self.ids.public.background_normal = 'images/settingbackgrounds/public_select.png'
+            c.cache['public'] = True
+        else:
+            self.ids.public.background_normal = 'images/settingbackgrounds/public.png'
+            c.cache['public'] = False
 
-    def fiftyplus(self):
-        self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+.png'
-        self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
-        self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+_select.png'
-        self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+.png'
-        c.cache['mutual_friends'] = '50+'
-
-    def hundredplus(self):
-        self.ids.tenplus.background_normal = 'images/settingbackgrounds/10+.png'
-        self.ids.thirtyplus.background_normal = 'images/settingbackgrounds/30+.png'
-        self.ids.fiftyplus.background_normal = 'images/settingbackgrounds/50+.png'
-        self.ids.hundredplus.background_normal = 'images/settingbackgrounds/100+_select.png'
-        c.cache['mutual_friends'] = '100+'
 
     def manual(self, type):
         if type == 'crawl':

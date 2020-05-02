@@ -13,14 +13,16 @@
             bold: True
 
         Label:
-            text: "Minimum mutual friends to follow"
+            text: "Account type\n(select multiple)"
+            halign: 'center'
             color: (0, 0, 0, .6)
             x: (root.width * .25)-100
             y: root.height * 0.89 - 50
             font_size: 15
 
         Label:
-            text: " Ratio to follow\n(select multiple)"
+            text: "Ratio to follow\n(select multiple)"
+            halign: 'center'
             color: (0, 0, 0, .6)
             x: (root.width * .75)
             y: root.height * 0.89 - 50
@@ -53,46 +55,25 @@
             background_down: 'images/settingbackgrounds/automatic_select.png'
             on_release: root.automatic('crawl')
 
-
-        Button:
-            x: (root.width * .06)-25
-            y: root.height * 0.78 - 20
-            id: tenplus
-            size_hint: .6, .6
-            border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/10+.png'
-            background_down: 'images/settingbackgrounds/10+_select.png'
-            on_release: root.tenplus()
-
         Button:
             x: (root.width * .14)-25
             y: root.height * 0.78 - 20
-            id: thirtyplus
+            id: private
             size_hint: .6, .6
             border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/30+.png'
-            background_down: 'images/settingbackgrounds/30+_select.png'
-            on_release: root.thirtyplus()
+            background_normal: 'images/settingbackgrounds/private.png'
+            background_down: 'images/settingbackgrounds/private_select.png'
+            on_release: root.private()
 
         Button:
             x: (root.width * .22)-25
             y: root.height * 0.78 - 20
-            id: fiftyplus
+            id: public
             size_hint: .6, .6
             border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/50+.png'
-            background_down: 'images/settingbackgrounds/50+_select.png'
-            on_release: root.fiftyplus()
-
-        Button:
-            x: (root.width * .3)-25
-            y: root.height * 0.78 - 20
-            id: hundredplus
-            size_hint: .6, .6
-            border: 3,3,3,3
-            background_normal: 'images/settingbackgrounds/100+.png'
-            background_down: 'images/settingbackgrounds/100+_select.png'
-            on_release: root.hundredplus()
+            background_normal: 'images/settingbackgrounds/public.png'
+            background_down: 'images/settingbackgrounds/public_select.png'
+            on_release: root.public()
 
         Button:
             x: (root.width * .7)-25

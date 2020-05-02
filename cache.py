@@ -30,6 +30,7 @@ def cache_similar(arr):
     cache['similar'] = arr
 
 def retrieve_similar():
+    # profile, user_id, user_name
     return cache['similar']
 
 def dash_set_up():
@@ -55,7 +56,8 @@ def clear_cache():
     cache['dash'] = None
     cache['similar'] = None
     #settings cache- usage of below found in screens.py
-    cache['mutual_friends'] = '30+'
+    cache['public'] = True
+    cache['private'] = True
     cache['crawl_control'] = 'manual'
     cache['purge_control'] = 'manual'
     cache['ratio_vl'] = True

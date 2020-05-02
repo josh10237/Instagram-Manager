@@ -9,13 +9,10 @@ purgelist = []
 
 def canUnfollow():
     try:
-        print("checking day")
         if canUnfollowCheck3():
             try:
-                print("checking hour")
                 if canUnfollowCheck2():
                     try:
-                        print("checking 15")
                         return canUnfollowCheck1()
                     except:
                         return 'Cannot Unfollow- Reached 15 Minute Limit'
@@ -95,17 +92,14 @@ def autoPurge(action, *v):
         value = val
     if action == 'add':
         purgelist.append(value)
-        print(purgelist)
     elif action == 'len':
         return len(purgelist)
     elif action == 'remove':
         try:
             x = purgelist[0]
-            print(x)
             purgelist.pop(0)
             return x
         except:
             return 'error'
     elif action == 'removeManual':
-        print(value)
         purgelist.remove(value)

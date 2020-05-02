@@ -62,21 +62,11 @@ def get_user_id(username):
     return api.username_info(username)['user']['pk']
 
 
-def get_media_user(username):
-    count = 0
-    media_arr = []
-    for x in api.username_feed(username)['items']:
-        media_arr.append(x['id'])
-        count += 1
-        if count == 6:
-            break
-    return media_arr
-
+def get_last_post_id(username):
+    return api.username_feed(username)['items'][0]['id']
 
 def get_likers_post(media_id):
-    likers_arr = []
-    for x in api.media_likers(media_id)['users']:
-        likers_arr.append(x['pk'])
+    return api.media_likers(media_id)['users']
 
 
 def follow_arr(speed, follow_arr):
