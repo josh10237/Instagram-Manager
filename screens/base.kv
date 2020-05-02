@@ -25,7 +25,7 @@
             bold: True
 
         Label:
-            text: "Try to choose users similar to you\nSelect users with similar demographics and similar follower counts"
+            text: "Try to choose users similar to you\nSelect users with similar demographics and follower counts"
             color: (0, 0, 0, .7)
             halign: 'center'
             x: (root.width * .5)-(self.width * .5)
@@ -38,11 +38,20 @@
             scroll_distance: 50
             bar_width: 4
             bar_inactive_color: (.7, .7, .7, .4)
-            size: (root.width * .75, root.height * .65)
+            size: (root.width * .55, root.height * .65)
             x: (root.width * .5) - (self.width/2)
-            y: root.height * 0.2
+            y: root.height * 0.1
             GridLayout:
                 id: widget_list
                 cols: 1
                 size_hint_y: None
                 height: sum(x.height for x in self.children)
+
+        Label:
+            id: error_info
+            color: (1, .2, .2, .8)
+            halign: 'center'
+            x: (root.width * .5)-(self.width * .5)
+            y: root.height * 0.05 - 50
+            font_size: 15
+            bold: True

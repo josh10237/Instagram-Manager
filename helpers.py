@@ -124,3 +124,6 @@ def dynamic_DFMB(arr, step):
 
 def unfollow(user_id):
     api.friendships_destroy(user_id)
+
+def get_profile_user(username):
+    return api.username_info(username)['user']['profile_pic_url']

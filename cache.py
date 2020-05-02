@@ -27,10 +27,10 @@ def retrieve_dash():
     return cache['dash']
 
 def cache_similar(arr):
-    cache['dash'] = arr
+    cache['similar'] = arr
 
 def retrieve_similar():
-    return cache['dash']
+    return cache['similar']
 
 def dash_set_up():
     username = retrieve_log_in('username')
@@ -53,6 +53,7 @@ def clear_cache():
     cache['password'] = None
     cache['profile_pic'] = None
     cache['dash'] = None
+    cache['similar'] = None
     #settings cache- usage of below found in screens.py
     cache['mutual_friends'] = '30+'
     cache['crawl_control'] = 'manual'

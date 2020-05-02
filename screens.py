@@ -185,11 +185,39 @@ class UnfollowButton(Button):
         if m == True:
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
-            l.autoPurge('removeManual', (lt,id))
+            l.autoPurge('removeManual', (lt, id))
             rt.remove_row(lt)
             h.unfollow(id)
         else:
             rt.unfollow_error(m)
+
+
+class RemoveButton(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        super(RemoveButton, self).__init__(**kwargs)
+        self.bind(on_release=self.remove)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj
+
+    def remove(self, instance):
+        rt = self.calling_obj
+        lt = self.userRowObj.layout
+        print(self.userRowObj.user_id)
+        rt.remove_row(lt, self.userRowObj.user_id)
+
+
+class AddButton(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        super(AddButton, self).__init__(**kwargs)
+        self.bind(on_release=self.add)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj  # remember this can't be used for fields, only removing itself
+
+    def add(self, instance):
+        rt = self.calling_obj
+        user_name = self.userRowObj.addInput.text
+        lt = self.userRowObj.layout
+        rt.add_row_from_ui(lt, user_name)
 
 
 class CrawlScreen(Screen):
@@ -288,18 +316,61 @@ class BaseScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'crawl'
 
+    # called on enter
     def pullCache(self):
         print('pulled')
-        arr = c.retrieve_similar()
-        for user in arr:
-            # profile, user_idm, user_name
-            self.add_row(user[0], user[1], user[2])
+        self.ids.widget_list.clear_widgets()
+        try:
+            arr = c.retrieve_similar()
+            print(arr)
+            for user in arr:
+                # profile, user_id, user_name
+                self.add_row(user[0], user[1], user[2])
+        except TypeError:
+            pass
         self.add_row('empty', None, None)
+
+    def add_row_from_ui(self, layout, user_name):
+        self.remove_row(layout, 0)
+        try:
+            profile = h.get_profile_user(user_name)
+            user_id = h.get_user_id(user_name)
+            self.add_row(profile, user_id, user_name)
+        except:
+            self.ids.error_info.text = "User Not Found"
+        self.add_row('empty', None, None)
+        self.add_sim_arr(profile, user_id, user_name)
+
+    def add_sim_arr(self, profile, user_id, user_name):
+        sim_arr = c.retrieve_similar()
+        if sim_arr == None:
+            sim_arr = []
+            print("none")
+        print(user_name)
+        sim_arr.append([profile, user_id, user_name])
+        print(sim_arr)
+        c.cache_similar(sim_arr)
 
     def add_row(self, profile, user_id, user_name):
         u = UserRow(self, profile, user_id, user_name)
-        g = u.create_layout_base()
+        if profile == 'empty':
+            g = u.create_layout_base_empty()
+        else:
+            g = u.create_layout_base()
+        self.ids.error_info.text = ""
         self.ids.widget_list.add_widget(g)
+
+    def remove_row(self, layout, call):
+        self.ids.widget_list.remove_widget(layout)
+        if call != 0:
+            sim_arr = c.retrieve_similar()
+            for user in sim_arr:
+                if user[1] == call:
+                    sim_arr.remove(user)
+                    c.cache_similar(sim_arr)
+                    return
+            print("Error- Not Found")
+
 
 
 class UserRow(GridLayout):
@@ -334,13 +405,30 @@ class UserRow(GridLayout):
         layout.add_widget(ImageButton(source=self.profile))
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
                                 valign="middle", text_size=(300, None)))
-        bsplit = GridLayout(rows=1)
-        removeButton = UnfollowButton(self.calling_obj, self,
-                                        background_normal='images/buttonbackgrounds/unfollow.png',
-                                        background_down='images/buttonbackgrounds/unfollow_select.png',
-                                        size_hint_x=None, width=100)
-        bsplit.add_widget(removeButton)
-        layout.add_widget(bsplit)
+        removeButton = RemoveButton(self.calling_obj, self,
+                                    background_normal='images/buttonbackgrounds/remove.png',
+                                    background_down='images/buttonbackgrounds/remove_select.png',
+                                    size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
+        layout.add_widget(removeButton)
+        self.layout = layout
+        return layout
+
+    def create_layout_base_empty(self):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(Image(source='images/blankprofile.png', size_hint=(None, None), height=60, width=60))
+        layout.add_widget(Label(text="spacer", color=(0, 0, 0, 0), halign="left",
+                                valign="middle", text_size=(300, None)))
+        self.addInput = TextInput(multiline=False, width=300, height=30, size_hint=(None, None),
+                                  background_color=(1, 1, 1, .3), hint_text_color=(0, 0, 0, .3),
+                                  hint_text="username", foreground_color=(0, 0, 0, .8))
+        layout.add_widget(self.addInput)
+        layout.add_widget(Label(text="spacer", color=(0, 0, 0, 0), halign="left",
+                                valign="middle", text_size=(300, None)))
+        approveButton = AddButton(self.calling_obj, self,
+                                  background_normal='images/buttonbackgrounds/checkmark.png',
+                                  background_down='images/buttonbackgrounds/checkmark_select.png',
+                                  size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
+        layout.add_widget(approveButton)
         self.layout = layout
         return layout
 
@@ -365,13 +453,11 @@ class PurgeScreen(Screen):
         self.ids.widget_list.remove_widget(lay)
         self.ids.pc.bold = False
         self.ids.pc.color = (0, 0, 0, 1)
-        self.ids.pc.text = "Removed"
         dash = c.retrieve_dash()
         dfmb = dash[2] - 1
+        self.ids.pc.text = 'Total: ' + str(dfmb)
         dash[2] = dfmb
         c.cache_dash(dash)
-
-
 
     def unfollow_error(self, m):
         self.ids.pc.color = (1, .2, .2, 1)
@@ -409,6 +495,7 @@ class PurgeScreen(Screen):
             self.ids.set_auto_button.text = "Turn On Automatic"
             self.toggle_auto()
         self.ids.toggle_purge_button.text = "Start Purge"
+        self.ids.pc.text = 'Total: ' + str(dfmb)
 
     def pullSettings(self):
         if c.cache['purge_control'] == 'auto':

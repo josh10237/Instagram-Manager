@@ -20,17 +20,4 @@ from instagram_private_api import (
 
 
 if __name__ == '__main__':
-    # print(l.canUnfollow())
-    # print("1 done")
-    # print(l.canUnfollow())
-    # print("2 done")
-    # print(l.canUnfollow())
-    # print("3 done")
-    # print(l.canUnfollow())
-    for x in range (0,10):
-        m = l.canUnfollow()
-        if m == True:
-            print("did it")
-        else:
-            print(m)
-
+    print(1)
