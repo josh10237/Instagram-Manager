@@ -165,7 +165,7 @@ class DashboardScreen(Screen):
         self.ids.followers.text = str(followers)
         self.ids.following.text = str(following)
         self.ids.ratio.text = "%.2f" % round(ratio, 2)
-        self.ids.avg_likes.text = "%.2f" % round(avglikes, 2)
+        self.ids.avg_likes.text = "%.0f" % round(avglikes, 2)
         self.ids.dfmb.text = str(dfmb)
         self.ids.engagement.text = "%.2f" % round(engagemnet, 2)
         self.ids.refresh.y = Window.height * 0.95 - 40
@@ -363,8 +363,15 @@ class PurgeScreen(Screen):
 
     def remove_row(self, lay):
         self.ids.widget_list.remove_widget(lay)
-        print("Did it: ")
-        print(lay)
+        self.ids.pc.bold = False
+        self.ids.pc.color = (0, 0, 0, 1)
+        self.ids.pc.text = "Removed"
+        dash = c.retrieve_dash()
+        dfmb = dash[2] - 1
+        dash[2] = dfmb
+        c.cache_dash(dash)
+
+
 
     def unfollow_error(self, m):
         self.ids.pc.color = (1, .2, .2, 1)
