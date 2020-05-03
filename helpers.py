@@ -115,5 +115,19 @@ def dynamic_DFMB(arr, step):
 def unfollow(user_id):
     api.friendships_destroy(user_id)
 
+def follow(user_id):
+    api.friendships_create(user_id)
+
 def get_profile_user(username):
     return api.username_info(username)['user']['profile_pic_url']
+
+def get_crawl_check_data(user_id):
+    rtarr = []
+    arr = api.friendships_show(user_id)
+    rtarr.append(arr['incoming_request'])
+    rtarr.append(arr['outgoing_request'])
+    rtarr.append(arr['blocking'])
+    rtarr.append(arr['following'])
+    rtarr.append(arr['followed_by'])
+    rtarr.append(arr['is_private'])
+    return rtarr

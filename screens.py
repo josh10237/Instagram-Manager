@@ -191,6 +191,26 @@ class UnfollowButton(Button):
         else:
             rt.unfollow_error(m)
 
+class FollowButton(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        super(FollowButton, self).__init__(**kwargs)
+        self.bind(on_release=self.follow)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj
+
+    def follow(self, instance):
+        m = l.canFollow()
+        rt = self.calling_obj
+        # LEAVE AS "== True"   DO NOT SIMPLIFY THE EXPRESSION
+        if m == True:
+            lt = self.userRowObj.layout
+            id = self.userRowObj.user_id
+            # l.autoCrawl('removeManual', (lt, id))
+            rt.remove_row(lt, id)
+            h.follow(id)
+        else:
+            rt.follow_error(m)
+
 
 class RemoveButton(Button):
     def __init__(self, calling_obj, userRowObj, **kwargs):
@@ -226,6 +246,11 @@ class CrawlScreen(Screen):
     def base(self):
         SCREEN_MANAGER.current = 'base'
 
+    def follow_error(self, m):
+        self.ids.pc.color = (1, .2, .2, 1)
+        self.ids.pc.bold = True
+        self.ids.pc.text = m
+
     def toggle_crawl(self):
         if self.ids.toggle_crawl_button.text == "Start Crawl":
             self.ids.widget_list.clear_widgets()
@@ -254,23 +279,46 @@ class CrawlScreen(Screen):
             self.ids.pc.text = "Base User Has No Posts- Remove The Top Base User And Re-run"
             self.ids.toggle_crawl_button.text = "Start Crawl"
             return
-        tot = len(h.get_likers_post(media_id))
+        likers = h.get_likers_post(media_id)
+        tot = len(likers)
         while count < tot:
-            arr = h.get_likers_post(media_id)[count]
+            arr = likers[count]
             user_name = arr['username']
             profile = arr['profile_pic_url']
             user_id = arr['pk']
             count += 1
-            u = UserRow(self, profile, user_id, user_name) #check settings first
-            g = u.create_layout_crawl()
-            self.update_percent(count/tot)
-            self.ids.widget_list.add_widget(g)
+            if self.canAdd(user_id):
+                u = UserRow(self, profile, user_id, user_name)  # check settings first
+                g = u.create_layout_crawl()
+                self.ids.widget_list.add_widget(g)
+            self.update_percent(count / tot)
         self.ids.toggle_crawl_button.text = "Start Crawl"
         # l.canAutoCrawl('can')
         # if self.ids.set_auto_button.text == "Turn Off Automatic":
         #     self.ids.set_auto_button.text = "Turn On Automatic"
         #     self.toggle_auto()
         # self.ids.toggle_purge_button.text = "Start Purge"
+
+    def canAdd(self, user_id):
+        arr = h.get_crawl_check_data(user_id)
+        for x in range(0, 4):
+            if arr[x]:
+                return False
+        private = arr[5]
+        if private:
+            if c.cache['private']:
+                return True
+            else:
+                return False
+        else:
+            if c.cache['public']:
+                return True
+            else:
+                return False
+
+    def remove_row(self, lay, user_id):
+        self.ids.widget_list.remove_widget(lay)
+        print(user_id)
 
     def update_percent(self, percent):
         pc = percent * 100
@@ -384,7 +432,6 @@ class BaseScreen(Screen):
             print("Error- Not Found")
 
 
-
 class UserRow(GridLayout):
     def __init__(self, obj, profile, user_id, user_name):
         self.calling_obj = obj
@@ -418,15 +465,16 @@ class UserRow(GridLayout):
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
                                 valign="middle", text_size=(300, None)))
         bsplit = GridLayout(rows=1)
-        unfollowButton = UnfollowButton(self.calling_obj, self,
-                                        background_normal='images/buttonbackgrounds/unfollow.png',
-                                        background_down='images/buttonbackgrounds/unfollow_select.png',
+        followButton = FollowButton(self.calling_obj, self,
+                                        background_normal='images/buttonbackgrounds/follow.png',
+                                        background_down='images/buttonbackgrounds/follow_select.png',
                                         size_hint_x=None, width=100)
-        bsplit.add_widget(unfollowButton)
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png',
-                                 width=50, height=50, size_hint_x=None, size_hint_y=None,
-                                 valign="middle", border=(3, 3, 3, 3)))
+        bsplit.add_widget(followButton)
+        dismissButton = RemoveButton(self.calling_obj, self,
+                                    background_normal='images/buttonbackgrounds/dismiss.png',
+                                    background_down='images/buttonbackgrounds/dismiss_select.png',
+                                    size_hint_x=None, width=100)
+        bsplit.add_widget(dismissButton)
         layout.add_widget(bsplit)
         self.layout = layout
         return layout
@@ -690,7 +738,6 @@ class SettingsScreen(Screen):
         else:
             self.ids.public.background_normal = 'images/settingbackgrounds/public.png'
             c.cache['public'] = False
-
 
     def manual(self, type):
         if type == 'crawl':
