@@ -113,7 +113,10 @@ def autoCrawl(action, *v):
     if action == 'add':
         crawllist.append(value)
     elif action == 'len':
+        print(crawllist)
         return len(crawllist)
+    elif action == 'clear':
+        crawllist = []
     elif action == 'remove':
         try:
             x = crawllist[0]
@@ -124,11 +127,3 @@ def autoCrawl(action, *v):
     elif action == 'removeManual':
         crawllist.remove(value)
 
-def failedstrike(args):
-    global failed
-    if args == 'failed':
-        failed = True
-    elif args == 'passed':
-        failed = False
-    else:
-        return failed
