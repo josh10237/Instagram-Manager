@@ -6,6 +6,7 @@ HOUR = 3600
 DAY = 86400
 DAILY_LIMIT = int(c.cache['daily_limit'])
 purgelist = []
+crawllist = []
 
 def canUnfollow():
     try:
@@ -65,24 +66,24 @@ def canFollowCheck3():
     return True
 
 def canAutoPurge(param):
-    global go
+    global go1
     if param == 'can':
-        go = True
+        go1 = True
     elif param == 'cannot':
-        go = False
+        go1 = False
     elif param == 'check':
-        return go
+        return go1
     else:
         return 'error'
 
 def canAutoCrawl(param):
-    global go
+    global go2
     if param == 'can':
-        go = True
+        go2 = True
     elif param == 'cannot':
-        go = False
+        go2 = False
     elif param == 'check':
-        return go
+        return go2
     else:
         return 'error'
 
@@ -92,6 +93,25 @@ def autoPurge(action, *v):
         value = val
     if action == 'add':
         purgelist.append(value)
+    elif action == 'len':
+        return len(purgelist)
+    elif action == 'remove':
+        try:
+            x = purgelist[0]
+            purgelist.pop(0)
+            return x
+        except:
+            return 'error'
+    elif action == 'removeManual':
+        purgelist.remove(value)
+
+def autoCrawl(action, *v):
+    global crawllist
+    for val in v:
+        value = val
+    if action == 'add':
+        purgelist.append(value)
+        print(purgelist)
     elif action == 'len':
         return len(purgelist)
     elif action == 'remove':

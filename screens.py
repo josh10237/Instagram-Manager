@@ -46,6 +46,7 @@ class instagramManagerApp(App):
         else:
             SCREEN_MANAGER.current = 'newUser'
         l.canAutoPurge('cannot')
+        l.canAutoCrawl('cannot')
         return SCREEN_MANAGER
 
 
@@ -205,7 +206,7 @@ class FollowButton(Button):
         if m == True:
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
-            # l.autoCrawl('removeManual', (lt, id))
+            l.autoCrawl('removeManual', (lt, id))
             rt.remove_row(lt, id)
             h.follow(id)
         else:
@@ -260,6 +261,7 @@ class CrawlScreen(Screen):
 
     def crawlThread(self):
         count = 0
+        tracktotal = 0
         self.ids.pc.bold = False
         self.ids.pc.color = (0, 0, 0, 1)
         self.ids.pc.text = "0%"
@@ -290,14 +292,22 @@ class CrawlScreen(Screen):
             if self.canAdd(user_id):
                 u = UserRow(self, profile, user_id, user_name)  # check settings first
                 g = u.create_layout_crawl()
+                l.autoCrawl('add', (g, user_id))
+                tracktotal += 1
                 self.ids.widget_list.add_widget(g)
             self.update_percent(count / tot)
-        self.ids.toggle_crawl_button.text = "Start Crawl"
-        # l.canAutoCrawl('can')
-        # if self.ids.set_auto_button.text == "Turn Off Automatic":
-        #     self.ids.set_auto_button.text = "Turn On Automatic"
-        #     self.toggle_auto()
-        # self.ids.toggle_purge_button.text = "Start Purge"
+            self.ids.toggle_crawl_button.text = "Start Crawl"
+            if tracktotal == 0:
+                self.strikeTop()
+                self.toggle_crawl()
+        self.ids.strike.color = (0, 0, 0, .5)
+        self.ids.pc.color = (0, 0, 0, 1)
+        self.ids.pc.bold = False
+        self.ids.pc.text = "Users from: @" + sim
+        l.canAutoCrawl('can')
+        if self.ids.set_auto_button.text == "Turn Off Automatic":
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.toggle_auto()
 
     def canAdd(self, user_id):
         arr = h.get_crawl_check_data(user_id)
@@ -316,6 +326,18 @@ class CrawlScreen(Screen):
             else:
                 return False
 
+    def strikeTop(self):
+        self.ids.widget_list.clear_widgets()
+        arr = c.retrieve_similar()
+        try:
+            arr.pop(0)
+        except IndexError:
+            print("error 2")
+            return
+        c.cache_similar(arr)
+        self.ids.strike.color = (0, 0, 0, 0)
+        self.ids.pc.text = "Run Crawl"
+
     def remove_row(self, lay, user_id):
         self.ids.widget_list.remove_widget(lay)
         print(user_id)
@@ -328,53 +350,178 @@ class CrawlScreen(Screen):
     def pullSettings(self):
         if c.cache['crawl_control'] == 'auto':
             self.ids.set_auto_button.text = "Turn Off Automatic"
-            # self.toggle_auto()
+            self.toggle_auto()
         else:
             self.ids.set_auto_button.text = "Turn On Automatic"
-    #
-    # def toggle_auto(self):
-    #     if self.ids.set_auto_button.text == "Turn On Automatic":
-    #         self.ids.set_auto_button.text = "Turn Off Automatic"
-    #         c.cache['crawl_control'] = 'auto'
-    #         # x = threading.Thread(target=self.followThread, daemon=True)
-    #         # x.start()
-    #     else:
-    #         self.ids.set_auto_button.text = "Turn On Automatic"
-    #         c.cache['crawl_control'] = 'manual'
-    #
-    # def followThread(self):
-    #     global runningCrawlAuto
-    #     if runningCrawlAuto:
-    #         return
-    #     while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
-    #         runningCrawlAuto = True
-    #         if c.cache['speed'] == 'slow':
-    #             t = randint(60, 70)
-    #         elif c.cache['speed'] == 'med':
-    #             t = randint(30, 35)
-    #         elif c.cache['speed'] == 'fast':
-    #             t = randint(5, 10)
-    #         while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
-    #             mins, secs = divmod(t, 60)
-    #             self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
-    #             time.sleep(1)
-    #             t -= 1
-    #         tmp = l.autoPurge('remove')
-    #         if tmp == 'error':
-    #             return
-    #         else:
-    #             tup = tmp
-    #             lay = tup[0]
-    #             id = tup[1]
-    #         checker = l.canAutoPurge('check')
-    #         if checker == True:
-    #             self.remove_row(lay)
-    #             h.unfollow(id)
-    #         else:
-    #             self.unfollow_error(checker)
-    #             return
-    #     self.ids.auto_timer.text = ""
-    #     runningCrawlAuto = False
+
+    def toggle_auto(self):
+        if self.ids.set_auto_button.text == "Turn On Automatic":
+            self.ids.set_auto_button.text = "Turn Off Automatic"
+            c.cache['crawl_control'] = 'auto'
+            x = threading.Thread(target=self.followThread, daemon=True)
+            x.start()
+        else:
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            c.cache['crawl_control'] = 'manual'
+
+    def followThread(self):
+        global runningCrawlAuto
+        if runningCrawlAuto:
+            return
+        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoCrawl('check') == True:
+            runningCrawlAuto = True
+            if c.cache['speed'] == 'slow':
+                t = randint(60, 70)
+            elif c.cache['speed'] == 'med':
+                t = randint(30, 35)
+            elif c.cache['speed'] == 'fast':
+                t = randint(5, 10)
+            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
+                mins, secs = divmod(t, 60)
+                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+                time.sleep(1)
+                t -= 1
+            tmp = l.autoCrawl('remove') #here
+            if tmp == 'error':
+                print("error 1")
+                return
+            else:
+                tup = tmp
+                lay = tup[0]
+                id = tup[1]
+            checker = l.canAutoCrawl('check')
+            if checker == True:
+                self.remove_row(lay, id)
+                h.follow(id)
+            else:
+                self.follow_error(checker)
+                return
+        self.ids.auto_timer.text = ""
+        runningCrawlAuto = False
+
+    def follow_error(self, m):
+        self.ids.pc.color = (1, .2, .2, 1)
+        self.ids.pc.bold = True
+        self.ids.pc.text = m
+
+class PurgeScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'dashboard'
+
+    def add_row(self, profile, user_id, user_name, percent):
+        u = UserRow(self, profile, user_id, user_name)
+        g = u.create_layout_purge()
+        l.autoPurge('add', (g, user_id))
+        self.ids.widget_list.add_widget(g)
+        self.update_percent(percent)
+
+    def update_percent(self, percent):
+        pc = percent * 100
+        p = "%.2f" % round(pc, 2)
+        self.ids.pc.text = "%" + p
+
+    def remove_row(self, lay):
+        self.ids.widget_list.remove_widget(lay)
+        self.ids.pc.bold = False
+        self.ids.pc.color = (0, 0, 0, 1)
+        dash = c.retrieve_dash()
+        dfmb = dash[2]
+        if dfmb == 'Run Purge':
+            dfmb = 0
+            print("slight varyiation in dfmb total")
+        dfmb -= 1
+        self.ids.pc.text = 'Total: ' + str(dfmb)
+        dash[2] = dfmb
+        c.cache_dash(dash)
+
+    def unfollow_error(self, m):
+        self.ids.pc.color = (1, .2, .2, 1)
+        self.ids.pc.bold = True
+        self.ids.pc.text = m
+
+    def toggle_purge(self):
+        if self.ids.toggle_purge_button.text == "Start Purge":
+            self.ids.widget_list.clear_widgets()
+            self.ids.toggle_purge_button.text = "Running..."
+            x = threading.Thread(target=self.purgeThread, daemon=True)
+            x.start()
+
+    def purgeThread(self):
+        tot = 0
+        dfmb = 0
+        self.ids.pc.bold = False
+        self.ids.pc.color = (0, 0, 0, 1)
+        following_arr = h.get_following_array(c.retrieve_log_in('username'))
+        while tot < len(following_arr):
+            arr = h.dynamic_DFMB(following_arr, tot)
+            if arr[0] == 'nil':
+                self.update_percent(arr[1])
+            else:
+                # profile, user_id, username, percent
+                self.add_row(arr[0], arr[1], arr[2], arr[3])
+                self.update_percent(arr[3])
+                dfmb += 1
+            tot += 1
+        dash = c.retrieve_dash()
+        dash[2] = dfmb
+        c.cache_dash(dash)
+        l.canAutoPurge('can')
+        if self.ids.set_auto_button.text == "Turn Off Automatic":
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.toggle_auto()
+        self.ids.toggle_purge_button.text = "Start Purge"
+        self.ids.pc.text = 'Total: ' + str(dfmb)
+
+    def pullSettings(self):
+        if c.cache['crawl_control'] == 'auto':
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.toggle_auto()
+        else:
+            self.ids.set_auto_button.text = "Turn On Automatic"
+
+    def toggle_auto(self):
+        if self.ids.set_auto_button.text == "Turn On Automatic":
+            self.ids.set_auto_button.text = "Turn Off Automatic"
+            c.cache['purge_control'] = 'auto'
+            x = threading.Thread(target=self.unfollowThread, daemon=True)
+            x.start()
+        else:
+            self.ids.set_auto_button.text = "Turn On Automatic"
+            c.cache['purge_control'] = 'manual'
+
+    def unfollowThread(self):
+        global runningPurgeAuto
+        if runningPurgeAuto:
+            return
+        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
+            runningPurgeAuto = True
+            if c.cache['speed'] == 'slow':
+                t = randint(60, 70)
+            elif c.cache['speed'] == 'med':
+                t = randint(30, 35)
+            elif c.cache['speed'] == 'fast':
+                t = randint(5, 10)
+            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
+                mins, secs = divmod(t, 60)
+                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+                time.sleep(1)
+                t -= 1
+            tmp = l.autoPurge('remove')
+            if tmp == 'error':
+                return
+            else:
+                tup = tmp
+                lay = tup[0]
+                id = tup[1]
+            checker = l.canAutoPurge('check')
+            if checker == True:
+                self.remove_row(lay)
+                h.unfollow(id)
+            else:
+                self.unfollow_error(checker)
+                return
+        self.ids.auto_timer.text = ""
+        runningPurgeAuto = False
 
 
 class BaseScreen(Screen):
@@ -399,10 +546,10 @@ class BaseScreen(Screen):
             profile = h.get_profile_user(user_name)
             user_id = h.get_user_id(user_name)
             self.add_row(profile, user_id, user_name)
+            self.add_sim_arr(profile, user_id, user_name)
         except:
             self.ids.error_info.text = "User Not Found"
         self.add_row('empty', None, None)
-        self.add_sim_arr(profile, user_id, user_name)
 
     def add_sim_arr(self, profile, user_id, user_name):
         sim_arr = c.retrieve_similar()
@@ -509,122 +656,6 @@ class UserRow(GridLayout):
         layout.add_widget(approveButton)
         self.layout = layout
         return layout
-
-
-class PurgeScreen(Screen):
-    def backButton(self):
-        SCREEN_MANAGER.current = 'dashboard'
-
-    def add_row(self, profile, user_id, user_name, percent):
-        u = UserRow(self, profile, user_id, user_name)
-        g = u.create_layout_purge()
-        l.autoPurge('add', (g, user_id))
-        self.ids.widget_list.add_widget(g)
-        self.update_percent(percent)
-
-    def update_percent(self, percent):
-        pc = percent * 100
-        p = "%.2f" % round(pc, 2)
-        self.ids.pc.text = "%" + p
-
-    def remove_row(self, lay):
-        self.ids.widget_list.remove_widget(lay)
-        self.ids.pc.bold = False
-        self.ids.pc.color = (0, 0, 0, 1)
-        dash = c.retrieve_dash()
-        dfmb = dash[2] - 1
-        self.ids.pc.text = 'Total: ' + str(dfmb)
-        dash[2] = dfmb
-        c.cache_dash(dash)
-
-    def unfollow_error(self, m):
-        self.ids.pc.color = (1, .2, .2, 1)
-        self.ids.pc.bold = True
-        self.ids.pc.text = m
-
-    def toggle_purge(self):
-        if self.ids.toggle_purge_button.text == "Start Purge":
-            self.ids.widget_list.clear_widgets()
-            self.ids.toggle_purge_button.text = "Running..."
-            x = threading.Thread(target=self.purgeThread, daemon=True)
-            x.start()
-
-    def purgeThread(self):
-        tot = 0
-        dfmb = 0
-        self.ids.pc.bold = False
-        self.ids.pc.color = (0, 0, 0, 1)
-        following_arr = h.get_following_array(c.retrieve_log_in('username'))
-        while tot < len(following_arr):
-            arr = h.dynamic_DFMB(following_arr, tot)
-            if arr[0] == 'nil':
-                self.update_percent(arr[1])
-            else:
-                # profile, user_id, username, percent
-                self.add_row(arr[0], arr[1], arr[2], arr[3])
-                self.update_percent(arr[3])
-                dfmb += 1
-            tot += 1
-        dash = c.retrieve_dash()
-        dash[2] = dfmb
-        c.cache_dash(dash)
-        l.canAutoPurge('can')
-        if self.ids.set_auto_button.text == "Turn Off Automatic":
-            self.ids.set_auto_button.text = "Turn On Automatic"
-            self.toggle_auto()
-        self.ids.toggle_purge_button.text = "Start Purge"
-        self.ids.pc.text = 'Total: ' + str(dfmb)
-
-    def pullSettings(self):
-        if c.cache['purge_control'] == 'auto':
-            self.ids.set_auto_button.text = "Turn On Automatic"
-            self.toggle_auto()
-        else:
-            self.ids.set_auto_button.text = "Turn On Automatic"
-
-    def toggle_auto(self):
-        if self.ids.set_auto_button.text == "Turn On Automatic":
-            self.ids.set_auto_button.text = "Turn Off Automatic"
-            c.cache['purge_control'] = 'auto'
-            x = threading.Thread(target=self.unfollowThread, daemon=True)
-            x.start()
-        else:
-            self.ids.set_auto_button.text = "Turn On Automatic"
-            c.cache['purge_control'] = 'manual'
-
-    def unfollowThread(self):
-        global runningPurgeAuto
-        if runningPurgeAuto:
-            return
-        while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
-            runningPurgeAuto = True
-            if c.cache['speed'] == 'slow':
-                t = randint(60, 70)
-            elif c.cache['speed'] == 'med':
-                t = randint(30, 35)
-            elif c.cache['speed'] == 'fast':
-                t = randint(5, 10)
-            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
-                mins, secs = divmod(t, 60)
-                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
-                time.sleep(1)
-                t -= 1
-            tmp = l.autoPurge('remove')
-            if tmp == 'error':
-                return
-            else:
-                tup = tmp
-                lay = tup[0]
-                id = tup[1]
-            checker = l.canAutoPurge('check')
-            if checker == True:
-                self.remove_row(lay)
-                h.unfollow(id)
-            else:
-                self.unfollow_error(checker)
-                return
-        self.ids.auto_timer.text = ""
-        runningPurgeAuto = False
 
 
 class SettingsScreen(Screen):

@@ -100,5 +100,22 @@
             font_size: 15
             bold: False
 
+        Button:
+            text: "Dismiss all and\nStrike top base user"
+            id: strike
+            color: (0, 0, 0, 0)
+            halign: 'center'
+            size: 300, 70
+            background_color: 0, 0, 0, 0
+            x: (root.width * .85)-50
+            y: root.height * 0.85 - 15
+            underline: True
+            on_release: root.strikeTop()
 
-
+        Label:
+            id: auto_timer
+            color: (0, 0, 0, 1)
+            x: (root.width * .62)-(self.width/2)+60
+            y: root.height * 0.85 - 25
+            font_size: 15
+            bold: True
