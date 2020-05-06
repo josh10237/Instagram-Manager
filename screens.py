@@ -294,12 +294,20 @@ class CrawlScreen(Screen):
                 g = u.create_layout_crawl()
                 l.autoCrawl('add', (g, user_id))
                 tracktotal += 1
+                print("Track total: " + str(tracktotal) + "  Username: " + str(user_name))
                 self.ids.widget_list.add_widget(g)
             self.update_percent(count / tot)
             self.ids.toggle_crawl_button.text = "Start Crawl"
+            print(tracktotal)
             if tracktotal == 0:
-                self.strikeTop()
-                self.toggle_crawl()
+                if l.failedstrike('check'):
+                    self.ids.pc.bold = True
+                    self.ids.pc.color = (1, .2, .2, .8)
+                    self.ids.pc.text = "Base User Error- Check Base Users And Re-run"
+                    return
+                else:
+                    self.strikeTop()
+                    self.toggle_crawl()
         self.ids.strike.color = (0, 0, 0, .5)
         self.ids.pc.color = (0, 0, 0, 1)
         self.ids.pc.bold = False
@@ -333,9 +341,11 @@ class CrawlScreen(Screen):
             arr.pop(0)
         except IndexError:
             print("error 2")
+            l.failedstrike('fail')
             return
         c.cache_similar(arr)
         self.ids.strike.color = (0, 0, 0, 0)
+        l.failedstrike('passed')
         self.ids.pc.text = "Run Crawl"
 
     def remove_row(self, lay, user_id):

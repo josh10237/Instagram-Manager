@@ -7,6 +7,7 @@ DAY = 86400
 DAILY_LIMIT = int(c.cache['daily_limit'])
 purgelist = []
 crawllist = []
+failed = False
 
 def canUnfollow():
     try:
@@ -110,16 +111,24 @@ def autoCrawl(action, *v):
     for val in v:
         value = val
     if action == 'add':
-        purgelist.append(value)
-        print(purgelist)
+        crawllist.append(value)
     elif action == 'len':
-        return len(purgelist)
+        return len(crawllist)
     elif action == 'remove':
         try:
-            x = purgelist[0]
-            purgelist.pop(0)
+            x = crawllist[0]
+            crawllist.pop(0)
             return x
         except:
             return 'error'
     elif action == 'removeManual':
-        purgelist.remove(value)
+        crawllist.remove(value)
+
+def failedstrike(args):
+    global failed
+    if args == 'failed':
+        failed = True
+    elif args == 'passed':
+        failed = False
+    else:
+        return failed
