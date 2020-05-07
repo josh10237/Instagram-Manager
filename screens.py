@@ -296,9 +296,9 @@ class CrawlScreen(Screen):
                 self.ids.widget_list.add_widget(g)
             self.update_percent(count / tot)
             self.ids.toggle_crawl_button.text = "Start Crawl"
-            if l.autoCrawl('len') == 0:
-                self.strikeTop()
-                self.toggle_crawl()
+        if l.autoCrawl('len') == 0:
+            self.strikeTop()
+            self.toggle_crawl()
         self.ids.strike.color = (0, 0, 0, .5)
         self.ids.pc.color = (0, 0, 0, 1)
         self.ids.pc.bold = False
@@ -347,11 +347,13 @@ class CrawlScreen(Screen):
         self.ids.pc.text = "%" + p
 
     def pullSettings(self):
+        print(c.cache['crawl_control'])
         if c.cache['crawl_control'] == 'auto':
-            self.ids.set_auto_button.text = "Turn Off Automatic"
+            self.ids.set_auto_button.text = "Turn On Automatic"
             self.toggle_auto()
         else:
-            self.ids.set_auto_button.text = "Turn On Automatic"
+            self.ids.set_auto_button.text = "Turn Off Automatic"
+            self.toggle_auto()
 
     def toggle_auto(self):
         if self.ids.set_auto_button.text == "Turn On Automatic":
@@ -472,7 +474,8 @@ class PurgeScreen(Screen):
         self.ids.pc.text = 'Total: ' + str(dfmb)
 
     def pullSettings(self):
-        if c.cache['crawl_control'] == 'auto':
+        print(c.cache['purge_control'])
+        if c.cache['purge_control'] == 'auto':
             self.ids.set_auto_button.text = "Turn On Automatic"
             self.toggle_auto()
         else:

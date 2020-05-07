@@ -108,12 +108,13 @@ def autoPurge(action, *v):
 
 def autoCrawl(action, *v):
     global crawllist
+    print(action)
+    print(crawllist)
     for val in v:
         value = val
     if action == 'add':
         crawllist.append(value)
     elif action == 'len':
-        print(crawllist)
         return len(crawllist)
     elif action == 'clear':
         crawllist = []
