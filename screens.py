@@ -2,27 +2,19 @@ import threading
 from kivy.uix.popup import Popup
 from kivy.app import App
 from kivy.uix.button import Button
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.boxlayout import BoxLayout
-from threading import Thread
 import helpers as h
 import cache as c
 import limiter as l
-from time import sleep
+import whitelist as w
 import accountgrade as ag
 from kivy.core.window import Window, Animation
-from kivy.graphics.context_instructions import Color
-from kivy.properties import NumericProperty, ColorProperty, ObjectProperty
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.anchorlayout import AnchorLayout
-from concurrent.futures import ThreadPoolExecutor
 import threading
 from random import randint
 import time
@@ -191,6 +183,23 @@ class UnfollowButton(Button):
             h.unfollow(id)
         else:
             rt.unfollow_error(m)
+
+
+class WhitelistButton(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        super(WhitelistButton, self).__init__(**kwargs)
+        self.bind(on_release=self.whitelist)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj
+
+    def whitelist(self, instance):
+        rt = self.calling_obj
+        lt = self.userRowObj.layout
+        rt.remove_row(lt)
+        user_id = self.userRowObj.user_id
+        username = h.get_usernme(user_id)
+        profile = h.get_profile_user(username)
+        w.whitelist([profile, user_id, username])
 
 class FollowButton(Button):
     def __init__(self, calling_obj, userRowObj, **kwargs):
@@ -382,7 +391,7 @@ class CrawlScreen(Screen):
                 self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
                 time.sleep(1)
                 t -= 1
-            tmp = l.autoCrawl('remove') #here
+            tmp = l.autoCrawl('remove')  # here
             if tmp == 'error':
                 print("error 1")
                 return
@@ -405,9 +414,13 @@ class CrawlScreen(Screen):
         self.ids.pc.bold = True
         self.ids.pc.text = m
 
+
 class PurgeScreen(Screen):
     def backButton(self):
         SCREEN_MANAGER.current = 'dashboard'
+
+    def veiwWhitelist(self):
+        SCREEN_MANAGER.current = 'whitelist'
 
     def add_row(self, profile, user_id, user_name, percent):
         u = UserRow(self, profile, user_id, user_name)
@@ -458,10 +471,11 @@ class PurgeScreen(Screen):
             if arr[0] == 'nil':
                 self.update_percent(arr[1])
             else:
-                # profile, user_id, username, percent
-                self.add_row(arr[0], arr[1], arr[2], arr[3])
-                self.update_percent(arr[3])
-                dfmb += 1
+                if w.offWaitlist == True:
+                    # profile, user_id, username, percent
+                    self.add_row(arr[0], arr[1], arr[2], arr[3])
+                    self.update_percent(arr[3])
+                    dfmb += 1
             tot += 1
         dash = c.retrieve_dash()
         dash[2] = dfmb
@@ -581,13 +595,46 @@ class BaseScreen(Screen):
             print("Error- Not Found")
 
 
+class WhitelistScreen(Screen):
+    def backButton(self):
+        SCREEN_MANAGER.current = 'purge'
+
+    def pullCache(self):
+        self.ids.widget_list.clear_widgets()
+        w.update_whitelist()
+        arr = w.retrieve_whitelist()
+        for user in arr:
+            # profile, user_id, user_name
+            self.add_row(user[0], user[1], user[2], w.diff_dates(user[3]))
+            print(w.retrieve_whitelist())
+
+    def add_row(self, profile, user_id, user_name, exp):
+        u = UserRow(self, profile, user_id, user_name, exp)
+        g = u.create_layout_base()
+        self.ids.error_info.text = ""
+        self.ids.widget_list.add_widget(g)
+
+    def remove_row(self, layout, call):
+        self.ids.widget_list.remove_widget(layout)
+        if call != 0:
+            sim_arr = c.retrieve_similar()
+            for user in sim_arr:
+                if user[1] == call:
+                    sim_arr.remove(user)
+                    c.cache_similar(sim_arr)
+                    return
+            print("Error- Not Found")
+
+
 class UserRow(GridLayout):
-    def __init__(self, obj, profile, user_id, user_name):
+    def __init__(self, obj, profile, user_id, user_name, *expiration):
         self.calling_obj = obj
         self.profile = profile
         self.user_id = user_id
         self.user_name = user_name
         self.layout = None
+        for item in expiration:
+            self.expiration = item
 
     def create_layout_purge(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
@@ -595,15 +642,17 @@ class UserRow(GridLayout):
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
                                 valign="middle", text_size=(300, None)))
         bsplit = GridLayout(rows=1)
-        unfollowButton = UnfollowButton(self.calling_obj, self,
-                                        background_normal='images/buttonbackgrounds/unfollow.png',
-                                        background_down='images/buttonbackgrounds/unfollow_select.png',
-                                        size_hint_x=None, width=100)
-        bsplit.add_widget(unfollowButton)
-        bsplit.add_widget(Button(background_normal='images/buttonbackgrounds/waitlist.png',
-                                 background_down='images/buttonbackgrounds/waitlist_select.png',
-                                 width=50, height=50, size_hint_x=None, size_hint_y=None,
-                                 valign="middle", border=(3, 3, 3, 3)))
+        uf = UnfollowButton(self.calling_obj, self,
+                            background_normal='images/buttonbackgrounds/unfollow.png',
+                            background_down='images/buttonbackgrounds/unfollow_select.png',
+                            size_hint_x=None, width=100)
+        bsplit.add_widget(uf)
+        wl = WhitelistButton(self.calling_obj, self,
+                             background_normal='images/buttonbackgrounds/waitlist.png',
+                             background_down='images/buttonbackgrounds/waitlist_select.png',
+                             width=50, height=50, size_hint_x=None, size_hint_y=None,
+                             valign="middle", border=(0, 0, 0, 0))
+        bsplit.add_widget(wl)
         layout.add_widget(bsplit)
         self.layout = layout
         return layout
@@ -615,24 +664,29 @@ class UserRow(GridLayout):
                                 valign="middle", text_size=(300, None)))
         bsplit = GridLayout(rows=1)
         followButton = FollowButton(self.calling_obj, self,
-                                        background_normal='images/buttonbackgrounds/follow.png',
-                                        background_down='images/buttonbackgrounds/follow_select.png',
-                                        size_hint_x=None, width=100)
+                                    background_normal='images/buttonbackgrounds/follow.png',
+                                    background_down='images/buttonbackgrounds/follow_select.png',
+                                    size_hint_x=None, width=100)
         bsplit.add_widget(followButton)
         dismissButton = RemoveButton(self.calling_obj, self,
-                                    background_normal='images/buttonbackgrounds/dismiss.png',
-                                    background_down='images/buttonbackgrounds/dismiss_select.png',
-                                    size_hint_x=None, width=100)
+                                     background_normal='images/buttonbackgrounds/dismiss.png',
+                                     background_down='images/buttonbackgrounds/dismiss_select.png',
+                                     size_hint_x=None, width=100)
         bsplit.add_widget(dismissButton)
         layout.add_widget(bsplit)
         self.layout = layout
         return layout
 
-    def create_layout_base(self):
+    def create_layout_whitelist(self):
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
-        layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
-                                valign="middle", text_size=(300, None)))
+        print("at the if statement")
+        if self.expiration is None:
+            layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
+                                    valign="middle", text_size=(300, None)))
+        else:
+            layout.add_widget(Label(text="@" + self.user_name + "   ⏰" + self.expiration, color=(0, 0, 0, .8),
+                                    halign="left", valign="middle", text_size=(300, None)))
         removeButton = RemoveButton(self.calling_obj, self,
                                     background_normal='images/buttonbackgrounds/remove.png',
                                     background_down='images/buttonbackgrounds/remove_select.png',
@@ -656,6 +710,19 @@ class UserRow(GridLayout):
                                   background_down='images/buttonbackgrounds/checkmark_select.png',
                                   size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
         layout.add_widget(approveButton)
+        self.layout = layout
+        return layout
+
+    def create_layout_base(self):
+        layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
+        layout.add_widget(ImageButton(source=self.profile))
+        layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
+                                valign="middle", text_size=(300, None)))
+        removeButton = RemoveButton(self.calling_obj, self,
+                                    background_normal='images/buttonbackgrounds/remove.png',
+                                    background_down='images/buttonbackgrounds/remove_select.png',
+                                    size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
+        layout.add_widget(removeButton)
         self.layout = layout
         return layout
 
@@ -885,10 +952,12 @@ Builder.load_file('screens/settings.kv')
 Builder.load_file('screens/purge.kv')
 Builder.load_file('screens/crawl.kv')
 Builder.load_file('screens/base.kv')
+Builder.load_file('screens/whitelist.kv')
 SCREEN_MANAGER.add_widget(SettingsScreen(name='settings'))
 SCREEN_MANAGER.add_widget(RememberScreen(name='remember'))
 SCREEN_MANAGER.add_widget(CrawlScreen(name='crawl'))
 SCREEN_MANAGER.add_widget(PurgeScreen(name='purge'))
 SCREEN_MANAGER.add_widget(BaseScreen(name='base'))
+SCREEN_MANAGER.add_widget(WhitelistScreen(name='whitelist'))
 SCREEN_MANAGER.add_widget(NewUserScreen(name='newUser'))
 SCREEN_MANAGER.add_widget(DashboardScreen(name='dashboard'))

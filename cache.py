@@ -67,6 +67,7 @@ def clear_cache():
     cache['whitelist_legnth'] = '10'
     cache['speed'] = 'slow'
     cache['daily_limit'] = '100'
+    cache['whitelist'] = None
 
 
 

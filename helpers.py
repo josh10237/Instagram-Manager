@@ -118,6 +118,17 @@ def unfollow(user_id):
 def follow(user_id):
     api.friendships_create(user_id)
 
+def get_usernme(user_id):
+    return api.user_info(user_id)['user']['username']
+
+def get_mutual(user_id):
+    return api.user_info(user_id)['user']['mutual_followers_count']
+
+def get_ratio(user_id):
+    followers = (api.user_info(user_id)['user']['counts']['followed_by'])
+    following = (api.user_info(user_id)['user']['counts']['follows'])
+    return followers/following
+
 def get_profile_user(username):
     return api.username_info(username)['user']['profile_pic_url']
 
