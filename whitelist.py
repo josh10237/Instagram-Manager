@@ -7,7 +7,6 @@ def retrieve_whitelist():
 
 
 def whitelist(arr):
-    w = []
     w = c.cache['whitelist']
     # profile, user_id, user_name
     try:
@@ -18,8 +17,9 @@ def whitelist(arr):
 
 
 def whitelist_timer(arr):
-    w = []
     w = c.cache['whitelist']
+    if w == None:
+        return
     timeAdd = int(c.cache['whitelist_legnth'])
     expiration = date.today() + timedelta(days=timeAdd)
     # profile, user_id, user_name
@@ -28,8 +28,9 @@ def whitelist_timer(arr):
 
 
 def update_whitelist():
-    w = []
     w = c.cache['whitelist']
+    if w == None:
+        return
     for item in w:
         if item[3] is not None and item[3] > date.today():
             w.remove(item)
@@ -43,8 +44,9 @@ def diff_dates(expDate):
 
 
 def remove_from_whitelist(user_id):
-    w = []
     w = c.cache['whitelist']
+    if w == None:
+        return
     for item in w:
         if item[1] == user_id:
             w.remove(item)
@@ -54,13 +56,16 @@ def remove_from_whitelist(user_id):
 
 
 def offWaitlist(user_id):
-    w = []
     w = c.cache['whitelist']
+    if w == None:
+        return True
     for item in w:
         if item[1] == user_id:
+            print(item[2])
             return False
     return True
 
 
 def clear_whitelist():
     c.cache['whitelist'] = None
+

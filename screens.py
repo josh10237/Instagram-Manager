@@ -201,6 +201,7 @@ class WhitelistButton(Button):
         profile = h.get_profile_user(username)
         w.whitelist([profile, user_id, username])
 
+
 class FollowButton(Button):
     def __init__(self, calling_obj, userRowObj, **kwargs):
         super(FollowButton, self).__init__(**kwargs)
@@ -224,12 +225,32 @@ class FollowButton(Button):
 
 class RemoveButton(Button):
     def __init__(self, calling_obj, userRowObj, **kwargs):
+        print("Remove button created")
         super(RemoveButton, self).__init__(**kwargs)
         self.bind(on_release=self.remove)
         self.calling_obj = calling_obj
         self.userRowObj = userRowObj
 
     def remove(self, instance):
+        print("Removed")
+        rt = self.calling_obj
+        lt = self.userRowObj.layout
+        rt.remove_row(lt, self.userRowObj.user_id)
+
+
+class RemoveButtonWhitelist(Button):
+    def __init__(self, calling_obj, userRowObj, **kwargs):
+        print("Created")
+        super(RemoveButtonWhitelist, self).__init__(**kwargs)
+        self.bind(on_release=self.removeWhitelisst)
+        self.calling_obj = calling_obj
+        self.userRowObj = userRowObj
+        print("Bound")
+
+    def removeWhitelisst(self, instance):
+        w.remove_from_whitelist(self.userRowObj.user_id)
+        print("New Whitelist")
+        print(w.retrieve_whitelist())
         rt = self.calling_obj
         lt = self.userRowObj.layout
         rt.remove_row(lt, self.userRowObj.user_id)
@@ -471,7 +492,7 @@ class PurgeScreen(Screen):
             if arr[0] == 'nil':
                 self.update_percent(arr[1])
             else:
-                if w.offWaitlist == True:
+                if w.offWaitlist(arr[1]) == True:
                     # profile, user_id, username, percent
                     self.add_row(arr[0], arr[1], arr[2], arr[3])
                     self.update_percent(arr[3])
@@ -590,7 +611,7 @@ class BaseScreen(Screen):
             for user in sim_arr:
                 if user[1] == call:
                     sim_arr.remove(user)
-                    c.cache_similar(sim_arr)
+                    print("Found 'em")
                     return
             print("Error- Not Found")
 
@@ -603,6 +624,8 @@ class WhitelistScreen(Screen):
         self.ids.widget_list.clear_widgets()
         w.update_whitelist()
         arr = w.retrieve_whitelist()
+        if arr == None:
+            return
         for user in arr:
             # profile, user_id, user_name
             self.add_row(user[0], user[1], user[2], w.diff_dates(user[3]))
@@ -610,18 +633,18 @@ class WhitelistScreen(Screen):
 
     def add_row(self, profile, user_id, user_name, exp):
         u = UserRow(self, profile, user_id, user_name, exp)
-        g = u.create_layout_base()
+        g = u.create_layout_whitelist()
         self.ids.error_info.text = ""
         self.ids.widget_list.add_widget(g)
 
     def remove_row(self, layout, call):
         self.ids.widget_list.remove_widget(layout)
         if call != 0:
-            sim_arr = c.retrieve_similar()
-            for user in sim_arr:
+            w_arr = w.retrieve_whitelist()
+            for user in w_arr:
                 if user[1] == call:
-                    sim_arr.remove(user)
-                    c.cache_similar(sim_arr)
+                    w_arr.remove(user)
+                    c.cache_similar(w_arr)
                     return
             print("Error- Not Found")
 
@@ -687,10 +710,10 @@ class UserRow(GridLayout):
         else:
             layout.add_widget(Label(text="@" + self.user_name + "   ⏰" + self.expiration, color=(0, 0, 0, .8),
                                     halign="left", valign="middle", text_size=(300, None)))
-        removeButton = RemoveButton(self.calling_obj, self,
-                                    background_normal='images/buttonbackgrounds/remove.png',
-                                    background_down='images/buttonbackgrounds/remove_select.png',
-                                    size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
+        removeButton = RemoveButtonWhitelist(self.calling_obj, self,
+                                             background_normal='images/buttonbackgrounds/remove.png',
+                                             background_down='images/buttonbackgrounds/remove_select.png',
+                                             size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
         layout.add_widget(removeButton)
         self.layout = layout
         return layout
@@ -714,6 +737,7 @@ class UserRow(GridLayout):
         return layout
 
     def create_layout_base(self):
+        print("making base layout")
         layout = GridLayout(rows=1, row_force_default=True, row_default_height=60)
         layout.add_widget(ImageButton(source=self.profile))
         layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",

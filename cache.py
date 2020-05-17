@@ -55,7 +55,7 @@ def clear_cache():
     cache['profile_pic'] = None
     cache['dash'] = None
     cache['similar'] = None
-    #settings cache- usage of below found in screens.py
+    # settings cache- usage of below found in screens.py
     cache['public'] = True
     cache['private'] = True
     cache['crawl_control'] = 'manual'
@@ -67,6 +67,7 @@ def clear_cache():
     cache['whitelist_legnth'] = '10'
     cache['speed'] = 'slow'
     cache['daily_limit'] = '100'
+    # whitelist.py
     cache['whitelist'] = None
 
 
