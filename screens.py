@@ -18,6 +18,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 import threading
 from random import randint
 import time
+import datetime
 
 SCREEN_MANAGER = ScreenManager()
 runningPurgeAuto = False
@@ -414,7 +415,9 @@ class CrawlScreen(Screen):
                 t -= 1
             tmp = l.autoCrawl('remove')  # here
             if tmp == 'error':
-                print("error 1")
+                print("error with auto crawl list")
+                l.canAutoCrawl('cannot')
+                self.ids.auto_timer.text = "Done"
                 return
             else:
                 tup = tmp
@@ -708,7 +711,10 @@ class UserRow(GridLayout):
             layout.add_widget(Label(text="@" + self.user_name, color=(0, 0, 0, .8), halign="left",
                                     valign="middle", text_size=(300, None)))
         else:
-            layout.add_widget(Label(text="@" + self.user_name + "   ⏰" + self.expiration, color=(0, 0, 0, .8),
+            exp = str(self.expiration)
+            exp = exp.split(',')[0]
+            print(exp)
+            layout.add_widget(Label(text="@" + self.user_name + "   ⏰ " + exp, color=(0, 0, 0, .8),
                                     halign="left", valign="middle", text_size=(300, None)))
         removeButton = RemoveButtonWhitelist(self.calling_obj, self,
                                              background_normal='images/buttonbackgrounds/remove.png',

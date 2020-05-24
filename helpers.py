@@ -1,5 +1,6 @@
 from time import sleep
 import cache as c
+import whitelist as w
 from instagram_private_api import Client, ClientError
 
 global api
@@ -116,6 +117,9 @@ def unfollow(user_id):
     api.friendships_destroy(user_id)
 
 def follow(user_id):
+    user_name = get_usernme(user_id)
+    profile = get_profile_user(user_name)
+    w.whitelist_timer([profile, user_id, user_name])
     api.friendships_create(user_id)
 
 def get_usernme(user_id):
