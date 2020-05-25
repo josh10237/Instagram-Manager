@@ -90,12 +90,17 @@ def canAutoCrawl(param):
 
 def autoPurge(action, *v):
     global purgelist
+    print(action)
+    print(purgelist)
     for val in v:
         value = val
     if action == 'add':
+        # value = (layout, user_id)
         purgelist.append(value)
     elif action == 'len':
         return len(purgelist)
+    elif action == 'clear':
+        purgelist = []
     elif action == 'remove':
         try:
             x = purgelist[0]

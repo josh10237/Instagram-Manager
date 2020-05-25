@@ -32,7 +32,7 @@ def update_whitelist():
     if w == None:
         return
     for item in w:
-        if item[3] is not None and item[3] > date.today():
+        if item[3] is not None and item[3] < date.today():
             w.remove(item)
     c.cache['whitelist'] = w
 

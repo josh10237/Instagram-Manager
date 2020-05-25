@@ -38,7 +38,6 @@ class instagramManagerApp(App):
             SCREEN_MANAGER.current = 'remember'
         else:
             SCREEN_MANAGER.current = 'newUser'
-        l.canAutoPurge('cannot')
         l.canAutoCrawl('cannot')
         return SCREEN_MANAGER
 
@@ -408,16 +407,24 @@ class CrawlScreen(Screen):
                 t = randint(30, 35)
             elif c.cache['speed'] == 'fast':
                 t = randint(5, 10)
-            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
-                mins, secs = divmod(t, 60)
-                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
-                time.sleep(1)
-                t -= 1
-            tmp = l.autoCrawl('remove')  # here
+            while t > 0:
+                if self.ids.set_auto_button.text == "Turn Off Automatic":
+                    mins, secs = divmod(t, 60)
+                    self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+                    time.sleep(1)
+                    t -= 1
+                    print("Crawl time: " + str(t))
+                else:
+                    self.ids.auto_timer.text = ""
+                    runningCrawlAuto = False
+                    print("toggled off")
+                    return
+            tmp = l.autoCrawl('remove')
             if tmp == 'error':
                 print("error with auto crawl list")
                 l.canAutoCrawl('cannot')
                 self.ids.auto_timer.text = "Done"
+                runningCrawlAuto = False
                 return
             else:
                 tup = tmp
@@ -429,9 +436,11 @@ class CrawlScreen(Screen):
                 h.follow(id)
             else:
                 self.follow_error(checker)
+                runningCrawlAuto = False
                 return
         self.ids.auto_timer.text = ""
         runningCrawlAuto = False
+        return
 
     def follow_error(self, m):
         self.ids.pc.color = (1, .2, .2, 1)
@@ -487,6 +496,7 @@ class PurgeScreen(Screen):
     def purgeThread(self):
         tot = 0
         dfmb = 0
+        l.autoPurge('clear')
         self.ids.pc.bold = False
         self.ids.pc.color = (0, 0, 0, 1)
         following_arr = h.get_following_array(c.retrieve_log_in('username'))
@@ -522,17 +532,22 @@ class PurgeScreen(Screen):
     def toggle_auto(self):
         if self.ids.set_auto_button.text == "Turn On Automatic":
             self.ids.set_auto_button.text = "Turn Off Automatic"
+            self.ids.auto_timer.text = "Starting..."
             c.cache['purge_control'] = 'auto'
             x = threading.Thread(target=self.unfollowThread, daemon=True)
             x.start()
+            print("AUTO PURGE called")
         else:
             self.ids.set_auto_button.text = "Turn On Automatic"
+            self.ids.auto_timer.text = ""
             c.cache['purge_control'] = 'manual'
 
     def unfollowThread(self):
         global runningPurgeAuto
+        print("Already running? " + str(runningPurgeAuto))
         if runningPurgeAuto:
             return
+        print("l.canAutoPurge? " + str(l.canAutoPurge('check')))
         while self.ids.set_auto_button.text == "Turn Off Automatic" and l.canAutoPurge('check') == True:
             runningPurgeAuto = True
             if c.cache['speed'] == 'slow':
@@ -541,27 +556,42 @@ class PurgeScreen(Screen):
                 t = randint(30, 35)
             elif c.cache['speed'] == 'fast':
                 t = randint(5, 10)
-            while t > 0 and self.ids.set_auto_button.text == "Turn Off Automatic":
-                mins, secs = divmod(t, 60)
-                self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
-                time.sleep(1)
-                t -= 1
+                print("first")
+            while t > 0:
+                if self.ids.set_auto_button.text == "Turn Off Automatic":
+                    mins, secs = divmod(t, 60)
+                    self.ids.auto_timer.text = '{:01d}:{:02d}'.format(mins, secs)
+                    time.sleep(1)
+                    t -= 1
+                    print("Purge time: " + str(t))
+                else:
+                    self.ids.auto_timer.text = ""
+                    runningPurgeAuto = False
+                    print("toggled off")
+                    return
             tmp = l.autoPurge('remove')
             if tmp == 'error':
+                print("Cannot remove more purge")
+                self.ids.auto_timer.text = "Done"
+                runningPurgeAuto = False
                 return
             else:
                 tup = tmp
                 lay = tup[0]
                 id = tup[1]
             checker = l.canAutoPurge('check')
+            print("Checker: " + str(checker))
             if checker == True:
                 self.remove_row(lay)
+                print("Unfollowed")
                 h.unfollow(id)
             else:
                 self.unfollow_error(checker)
+                runningPurgeAuto = False
                 return
         self.ids.auto_timer.text = ""
         runningPurgeAuto = False
+        return
 
 
 class BaseScreen(Screen):
