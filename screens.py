@@ -467,8 +467,9 @@ class PurgeScreen(Screen):
         p = "%.2f" % round(pc, 2)
         self.ids.pc.text = "%" + p
 
-    def remove_row(self, lay):
+    def remove_row(self, lay, user_id):
         self.ids.widget_list.remove_widget(lay)
+        print(user_id)
         self.ids.pc.bold = False
         self.ids.pc.color = (0, 0, 0, 1)
         dash = c.retrieve_dash()
@@ -480,6 +481,7 @@ class PurgeScreen(Screen):
         self.ids.pc.text = 'Total: ' + str(dfmb)
         dash[2] = dfmb
         c.cache_dash(dash)
+        print("completed remove row purge")
 
     def unfollow_error(self, m):
         self.ids.pc.color = (1, .2, .2, 1)
@@ -582,7 +584,7 @@ class PurgeScreen(Screen):
             checker = l.canAutoPurge('check')
             print("Checker: " + str(checker))
             if checker == True:
-                self.remove_row(lay)
+                self.remove_row(lay, id)
                 print("Unfollowed")
                 h.unfollow(id)
             else:
