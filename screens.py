@@ -195,7 +195,7 @@ class WhitelistButton(Button):
     def whitelist(self, instance):
         rt = self.calling_obj
         lt = self.userRowObj.layout
-        rt.remove_row(lt)
+        rt.remove_row(lt, self.userRowObj.user_id)
         user_id = self.userRowObj.user_id
         username = h.get_usernme(user_id)
         profile = h.get_profile_user(username)
