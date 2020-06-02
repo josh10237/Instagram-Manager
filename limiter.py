@@ -7,6 +7,8 @@ DAY = 86400
 DAILY_LIMIT = int(c.cache['daily_limit'])
 purgelist = []
 crawllist = []
+go1 = False
+go2 = False
 failed = False
 
 def canUnfollow():

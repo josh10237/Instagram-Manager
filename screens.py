@@ -179,7 +179,7 @@ class UnfollowButton(Button):
             lt = self.userRowObj.layout
             id = self.userRowObj.user_id
             l.autoPurge('removeManual', (lt, id))
-            rt.remove_row(lt)
+            rt.remove_row(lt, id)
             h.unfollow(id)
         else:
             rt.unfollow_error(m)
@@ -233,24 +233,6 @@ class RemoveButton(Button):
 
     def remove(self, instance):
         print("Removed")
-        rt = self.calling_obj
-        lt = self.userRowObj.layout
-        rt.remove_row(lt, self.userRowObj.user_id)
-
-
-class RemoveButtonWhitelist(Button):
-    def __init__(self, calling_obj, userRowObj, **kwargs):
-        print("Created")
-        super(RemoveButtonWhitelist, self).__init__(**kwargs)
-        self.bind(on_release=self.removeWhitelisst)
-        self.calling_obj = calling_obj
-        self.userRowObj = userRowObj
-        print("Bound")
-
-    def removeWhitelisst(self, instance):
-        w.remove_from_whitelist(self.userRowObj.user_id)
-        print("New Whitelist")
-        print(w.retrieve_whitelist())
         rt = self.calling_obj
         lt = self.userRowObj.layout
         rt.remove_row(lt, self.userRowObj.user_id)
@@ -325,7 +307,6 @@ class CrawlScreen(Screen):
                 l.autoCrawl('add', (g, user_id))
                 self.ids.widget_list.add_widget(g)
             self.update_percent(count / tot)
-            self.ids.toggle_crawl_button.text = "Start Crawl"
         if l.autoCrawl('len') == 0:
             self.strikeTop()
             self.toggle_crawl()
@@ -334,6 +315,7 @@ class CrawlScreen(Screen):
         self.ids.pc.bold = False
         self.ids.pc.text = "Users from: @" + sim
         l.canAutoCrawl('can')
+        self.ids.toggle_crawl_button.text = "Start Crawl"
         if self.ids.set_auto_button.text == "Turn Off Automatic":
             self.ids.set_auto_button.text = "Turn On Automatic"
             self.toggle_auto()
@@ -639,16 +621,17 @@ class BaseScreen(Screen):
         self.ids.error_info.text = ""
         self.ids.widget_list.add_widget(g)
 
-    def remove_row(self, layout, call):
+    def remove_row(self, layout, id):
         self.ids.widget_list.remove_widget(layout)
-        if call != 0:
+        if id != 0:  # it is zero when we only want to remove the textinput box as opposed to an actual user
             sim_arr = c.retrieve_similar()
             for user in sim_arr:
-                if user[1] == call:
+                if user[1] == id:
                     sim_arr.remove(user)
+                    c.cache_similar(sim_arr)
                     print("Found 'em")
                     return
-            print("Error- Not Found")
+                print("Error- Not found in sim_array for Base Screen")
 
 
 class WhitelistScreen(Screen):
@@ -672,16 +655,15 @@ class WhitelistScreen(Screen):
         self.ids.error_info.text = ""
         self.ids.widget_list.add_widget(g)
 
-    def remove_row(self, layout, call):
+    def remove_row(self, layout, id):
         self.ids.widget_list.remove_widget(layout)
-        if call != 0:
-            w_arr = w.retrieve_whitelist()
-            for user in w_arr:
-                if user[1] == call:
-                    w_arr.remove(user)
-                    c.cache_similar(w_arr)
-                    return
-            print("Error- Not Found")
+        w.remove_from_whitelist(id)
+        w_arr = w.retrieve_whitelist()
+        for user in w_arr:
+            if user[1] == id:
+                w_arr.remove(user)
+                c.cache_similar(w_arr)
+                return
 
 
 class UserRow(GridLayout):
@@ -748,7 +730,7 @@ class UserRow(GridLayout):
             print(exp)
             layout.add_widget(Label(text="@" + self.user_name + "   ⏰ " + exp, color=(0, 0, 0, .8),
                                     halign="left", valign="middle", text_size=(300, None)))
-        removeButton = RemoveButtonWhitelist(self.calling_obj, self,
+        removeButton = RemoveButton(self.calling_obj, self,
                                              background_normal='images/buttonbackgrounds/remove.png',
                                              background_down='images/buttonbackgrounds/remove_select.png',
                                              size_hint=(None, None), height=25, width=25, border=(0, 0, 0, 0))
