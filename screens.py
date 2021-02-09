@@ -1,4 +1,3 @@
-import threading
 from kivy.uix.popup import Popup
 from kivy.app import App
 from kivy.uix.button import Button
@@ -18,7 +17,6 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 import threading
 from random import randint
 import time
-import datetime
 
 SCREEN_MANAGER = ScreenManager()
 runningPurgeAuto = False

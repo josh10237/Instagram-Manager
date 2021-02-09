@@ -1,7 +1,8 @@
 from time import sleep
 import cache as c
 import whitelist as w
-from instagram_private_api import Client, ClientError
+from instagram_private_api import Client, ClientCompatPatch
+
 
 global api
 
@@ -99,6 +100,8 @@ def get_following_array(username):
     for val in a['users']:
         arr.append((val['username'], val['pk'], val['profile_picture']))
     return arr
+
+
 
 def dynamic_DFMB(arr, step):
     user = arr[step]
